@@ -3,7 +3,6 @@ package repository
 import (
 	"fmt"
 
-	//sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 	log "github.com/sirupsen/logrus"
 
@@ -20,26 +19,19 @@ func NewWalletRepo(db *sqlx.DB) *WalletRepo {
 	return &WalletRepo{Db: db}
 }
 
-func (r *WalletRepo) CreateOperation(task *model.Wallet) (int64, error) {
-	res, err := r.Db.Exec(SQLCreateTask, task.Date, task.Title, task.Comment, task.Repeat)
+func (r *WalletRepo) CreateOperation(task *model.Operation) error {
+	_, err := r.Db.Exec(SQLCreateTask, task.Date, task.Title, task.Comment, task.Repeat)
 	if err != nil {
 		log.Debugf("Database.CreateTask: %+v", err)
 
-		return 0, err
+		return err
 	}
 
-	id, err := res.LastInsertId()
-	if err != nil {
-		log.Debugf("Database.CreateTask: %+v", err)
-
-		return 0, err
-	}
-
-	return id, nil
+	return nil
 }
 
-func (r *WalletRepo) GetWalletByUUID(id string) (*model.Wallet, error) {
-	var task model.Wallet
+func (r *WalletRepo) GetWalletByUUID(id string) (*model.Operation, error) {
+	var task model.Operation
 
 	res, err := r.Db.Query(SQLGetTaskById, id)
 	if err != nil {

@@ -1,23 +1,14 @@
 package model
 
-const TimeFormat = "20060102"
+type OperationType string
 
-type Wallet struct {
-	Id      string `json:"id,omitempty"`
-	Date    string `json:"date"`
-	Title   string `json:"title"`
-	Comment string `json:"comment,omitempty"`
-	Repeat  string `json:"repeat"`
-}
+const (
+	Deposit  OperationType = "deposit"
+	Withdraw OperationType = "withdraw"
+)
 
-type TaskResp struct {
-	Id int64 `json:"id"`
-}
-
-func NewTaskResp(id int64) *TaskResp {
-	return &TaskResp{Id: id}
-}
-
-type TasksResp struct {
-	Tasks []Wallet `json:"tasks"`
+type Operation struct {
+	WalletId      string        `json:"walletId"`
+	OperationType OperationType `json:"operationType"`
+	Amount        int64         `json:"amount"`
 }

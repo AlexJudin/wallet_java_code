@@ -5,6 +5,10 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/jmoiron/sqlx"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/AlexJudin/wallet_java_code/api"
@@ -29,11 +33,24 @@ func main() {
 
 	log.SetLevel(cfg.LogLevel)
 
-	db, err := repository.NewDB(cfg.DBFile)
+	connStr := cfg.GetDataSourceName()
+	db, err := sqlx.Open("postgres", connStr)
 	if err != nil {
-		log.Fatalf("Error connect to repository: %+v", err)
+		log.Fatal(err)
 	}
 	defer db.Close()
+
+	driver, err := postgres.WithInstance(db, &postgres.Config{})
+	m, err := migrate.NewWithDatabaseInstance(
+		"file://migrations",
+		cfg.СonfigDB.DBName, driver)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = m.Up()
+	if err != nil && err.Error() != "no change" {
+		log.Fatal(err)
+	}
 
 	// init repository
 	repo := repository.NewWalletRepo(db)

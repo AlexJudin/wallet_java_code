@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
 
 	log "github.com/sirupsen/logrus"
 
@@ -37,7 +36,7 @@ type errResponse struct {
 // @Router /api/task [post]
 func (h *WalletHandler) CreateOperation(w http.ResponseWriter, r *http.Request) {
 	var (
-		task model.Wallet
+		task model.Operation
 		buf  bytes.Buffer
 	)
 
@@ -62,22 +61,7 @@ func (h *WalletHandler) CreateOperation(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	dateTaskNow := time.Now().Format(model.TimeFormat)
-
-	pastDay := dateTaskNow > task.Date
-
-	taskResp, err := h.uc.CreateOperation(&task, pastDay)
-	if err != nil {
-		log.Errorf("http.CreateTask: %+v", err)
-
-		errResp := errResponse{
-			Error: err.Error(),
-		}
-		returnErr(http.StatusInternalServerError, errResp, w)
-		return
-	}
-
-	resp, err := json.Marshal(taskResp)
+	err = h.uc.CreateOperation(&task)
 	if err != nil {
 		log.Errorf("http.CreateTask: %+v", err)
 
@@ -90,15 +74,6 @@ func (h *WalletHandler) CreateOperation(w http.ResponseWriter, r *http.Request) 
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	_, err = w.Write(resp)
-	if err != nil {
-		log.Errorf("http.CreateTask: %+v", err)
-
-		errResp := errResponse{
-			Error: err.Error(),
-		}
-		returnErr(http.StatusInternalServerError, errResp, w)
-	}
 }
 
 // GetWalletByUUID ... Получить задачу

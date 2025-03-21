@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -10,6 +11,16 @@ import (
 type Сonfig struct {
 	Port     string
 	LogLevel log.Level
+	СonfigDB *СonfigDB
+}
+
+type СonfigDB struct {
+	Port     string `env:"DBPORT" envDefault:"5433"`
+	Host     string `env:"DBHOST,required"`
+	User     string `env:"DBUSER" envDefault:"http"`
+	Password string `env:"DBPASSWORD,required"`
+	DBName   string `env:"DBNAME" envDefault:"http"`
+	Sslmode  string `env:"SSLMODE" envDefault:"disable"`
 }
 
 func New() (*Сonfig, error) {
@@ -30,4 +41,11 @@ func New() (*Сonfig, error) {
 	cfg.LogLevel = logLevel
 
 	return &cfg, nil
+}
+
+func (c *Сonfig) GetDataSourceName() string {
+	str := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+		c.СonfigDB.Host, c.СonfigDB.Port, c.СonfigDB.User, c.СonfigDB.Password, c.СonfigDB.DBName, c.СonfigDB.Sslmode)
+
+	return str
 }
