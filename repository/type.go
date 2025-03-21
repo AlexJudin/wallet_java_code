@@ -5,6 +5,6 @@ import (
 )
 
 type Wallet interface {
-	CreateTask(task *model.Task) (int64, error)
-	GetTaskById(id string) (*model.Task, error)
+	CreateOperation(task *model.Wallet) (int64, error)
+	GetWalletByUUID(id string) (*model.Wallet, error)
 }

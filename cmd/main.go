@@ -39,12 +39,12 @@ func main() {
 	repo := repository.NewWalletRepo(db)
 
 	// init usecases
-	taskUC := usecases.NewWalletUsecase(repo)
-	taskHandler := api.NewTaskHandler(taskUC)
+	walletUC := usecases.NewWalletUsecase(repo)
+	walletHandler := api.NewWalletHandler(walletUC)
 
 	r := chi.NewRouter()
-	r.Post("/api/task", taskHandler.CreateTask)
-	r.Get("/api/tasks", taskHandler.GetTask)
+	r.Post("/api/v1/wallet", walletHandler.CreateOperation)
+	r.Get("/api/v1/wallets/{WALLET_UUID:string}", walletHandler.GetWalletByUUID)
 
 	serverAddress := fmt.Sprintf("localhost:%s", cfg.Port)
 	log.Infoln("Listening on " + serverAddress)

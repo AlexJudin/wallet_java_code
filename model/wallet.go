@@ -2,7 +2,7 @@ package model
 
 const TimeFormat = "20060102"
 
-type Task struct {
+type Wallet struct {
 	Id      string `json:"id,omitempty"`
 	Date    string `json:"date"`
 	Title   string `json:"title"`
@@ -19,5 +19,5 @@ func NewTaskResp(id int64) *TaskResp {
 }
 
 type TasksResp struct {
-	Tasks []Task `json:"tasks"`
+	Tasks []Wallet `json:"tasks"`
 }

@@ -15,17 +15,17 @@ func NewWalletUsecase(db repository.Wallet) *WalletUsecase {
 	return &WalletUsecase{DB: db}
 }
 
-func (t *WalletUsecase) CreateTask(task *model.Task, pastDay bool) (*model.TaskResp, error) {
+func (t *WalletUsecase) CreateOperation(task *model.Wallet) error {
 	taskId, err := t.DB.CreateTask(task)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	taskResp := model.NewTaskResp(taskId)
 
-	return taskResp, nil
+	return nil
 }
 
-func (t *WalletUsecase) GetTaskById(id string) (*model.Task, error) {
+func (t *WalletUsecase) GetWalletByUUID(id string) (int, error) {
 	return t.DB.GetTaskById(id)
 }

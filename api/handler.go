@@ -13,19 +13,19 @@ import (
 	"github.com/AlexJudin/wallet_java_code/usecases"
 )
 
-type TaskHandler struct {
+type WalletHandler struct {
 	uc usecases.Wallet
 }
 
-func NewTaskHandler(uc usecases.Wallet) TaskHandler {
-	return TaskHandler{uc: uc}
+func NewWalletHandler(uc usecases.Wallet) WalletHandler {
+	return WalletHandler{uc: uc}
 }
 
 type errResponse struct {
 	Error string `json:"error"`
 }
 
-// CreateTask ... Добавить новую задачу
+// CreateOperation ... Добавить новую задачу
 // @Summary Добавить новую задачу
 // @Description Добавить новую задачу
 // @Accept json
@@ -35,9 +35,9 @@ type errResponse struct {
 // @Failure 400 {object} errResponse
 // @Failure 500 {object} errResponse
 // @Router /api/task [post]
-func (h *TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
+func (h *WalletHandler) CreateOperation(w http.ResponseWriter, r *http.Request) {
 	var (
-		task model.Task
+		task model.Wallet
 		buf  bytes.Buffer
 	)
 
@@ -66,7 +66,7 @@ func (h *TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 
 	pastDay := dateTaskNow > task.Date
 
-	taskResp, err := h.uc.CreateTask(&task, pastDay)
+	taskResp, err := h.uc.CreateOperation(&task, pastDay)
 	if err != nil {
 		log.Errorf("http.CreateTask: %+v", err)
 
@@ -101,7 +101,7 @@ func (h *TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// GetTask ... Получить задачу
+// GetWalletByUUID ... Получить задачу
 // @Summary Получить задачу
 // @Description Получить задачу
 // @Accept json
@@ -111,7 +111,7 @@ func (h *TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 // @Failure 400 {object} errResponse
 // @Failure 500 {object} errResponse
 // @Router /api/task [get]
-func (h *TaskHandler) GetTask(w http.ResponseWriter, r *http.Request) {
+func (h *WalletHandler) GetWalletByUUID(w http.ResponseWriter, r *http.Request) {
 	taskId := r.FormValue("id")
 	if taskId == "" {
 		err := fmt.Errorf("task id is empty")
@@ -124,7 +124,7 @@ func (h *TaskHandler) GetTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	taskResp, err := h.uc.GetTaskById(taskId)
+	taskResp, err := h.uc.GetWalletByUUID(taskId)
 	if err != nil {
 		log.Errorf("http.GetTask: %+v", err)
 

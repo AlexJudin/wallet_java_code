@@ -1,10 +1,10 @@
 package usecases
 
 import (
-	"github.com/AlexJudin/go_final_project/model"
+	"github.com/AlexJudin/wallet_java_code/model"
 )
 
 type Wallet interface {
-	CreateTask(task *model.Task, today bool) (*model.TaskResp, error)
-	GetTaskById(id string) (*model.Task, error)
+	CreateOperation(task *model.Wallet) error
+	GetWalletByUUID(id string) (int, error)
 }

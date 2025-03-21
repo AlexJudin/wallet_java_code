@@ -20,7 +20,7 @@ func NewWalletRepo(db *sqlx.DB) *WalletRepo {
 	return &WalletRepo{Db: db}
 }
 
-func (r *WalletRepo) CreateTask(task *model.Task) (int64, error) {
+func (r *WalletRepo) CreateOperation(task *model.Wallet) (int64, error) {
 	res, err := r.Db.Exec(SQLCreateTask, task.Date, task.Title, task.Comment, task.Repeat)
 	if err != nil {
 		log.Debugf("Database.CreateTask: %+v", err)
@@ -38,8 +38,8 @@ func (r *WalletRepo) CreateTask(task *model.Task) (int64, error) {
 	return id, nil
 }
 
-func (r *WalletRepo) GetTaskById(id string) (*model.Task, error) {
-	var task model.Task
+func (r *WalletRepo) GetWalletByUUID(id string) (*model.Wallet, error) {
+	var task model.Wallet
 
 	res, err := r.Db.Query(SQLGetTaskById, id)
 	if err != nil {
