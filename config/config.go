@@ -24,7 +24,7 @@ type СonfigDB struct {
 }
 
 func New() (*Сonfig, error) {
-	err := godotenv.Load(".env")
+	err := godotenv.Load("config/config.env")
 	if err != nil {
 		return nil, err
 	}

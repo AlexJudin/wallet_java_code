@@ -2,7 +2,7 @@ services:
   web:
     build: .
     env_file:
-      - .env
+      - config/config.env
     ports:
       - "7540:7540"
     volumes:
