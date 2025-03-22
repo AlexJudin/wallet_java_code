@@ -31,6 +31,7 @@ func New() (*Сonfig, error) {
 	}
 
 	cfg := Сonfig{
+		Host: os.Getenv("HOST"),
 		Port: os.Getenv("PORT"),
 	}
 
@@ -40,6 +41,17 @@ func New() (*Сonfig, error) {
 	}
 
 	cfg.LogLevel = logLevel
+
+	dbCfg := СonfigDB{
+		Port:     os.Getenv("DB_PORT"),
+		Host:     os.Getenv("DB_HOST"),
+		User:     os.Getenv("DB_USER"),
+		Password: os.Getenv("DB_PASSWORD"),
+		DBName:   os.Getenv("DB_NAME"),
+		Sslmode:  os.Getenv("DB_SSLMODE"),
+	}
+
+	cfg.СonfigDB = &dbCfg
 
 	return &cfg, nil
 }

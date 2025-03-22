@@ -24,16 +24,16 @@ type errResponse struct {
 	Error string `json:"error"`
 }
 
-// CreateOperation ... Добавить новую задачу
-// @Summary Добавить новую задачу
-// @Description Добавить новую задачу
+// CreateOperation ... Добавить новую платежную операцию
+// @Summary Добавить новую платежную операцию
+// @Description Добавить новую платежную операцию по кошельку
 // @Accept json
-// @Tags Task
-// @Param Body body model.Task true "Параметры задачи"
+// @Tags wallet
+// @Param Body body model.PaymentOperation true "Параметры операции"
 // @Success 201 {int}    http.StatusCreated
 // @Failure 400 {object} errResponse
 // @Failure 500 {object} errResponse
-// @Router /api/task [post]
+// @Router /api/v1/wallet [post]
 func (h *WalletHandler) CreateOperation(w http.ResponseWriter, r *http.Request) {
 	var (
 		paymentOperation model.PaymentOperation
@@ -57,7 +57,10 @@ func (h *WalletHandler) CreateOperation(w http.ResponseWriter, r *http.Request) 
 
 	err = h.uc.CreateOperation(&paymentOperation)
 	if err != nil {
-		log.Errorf("http.CreateTask: %+v", err)
+		log.Errorf("create payment operation: error create payment operation for wallet [%s], operation type [%s], amount [%d]: service is not allowed",
+			paymentOperation.WalletId,
+			paymentOperation.OperationType,
+			paymentOperation.Amount)
 
 		returnErr(http.StatusInternalServerError, err, w)
 		return
@@ -67,29 +70,29 @@ func (h *WalletHandler) CreateOperation(w http.ResponseWriter, r *http.Request) 
 	w.WriteHeader(http.StatusCreated)
 }
 
-// GetWalletBalanceByUUID ... Получить задачу
-// @Summary Получить задачу
-// @Description Получить задачу
+// GetWalletBalanceByUUID ... Получить баланс по кошельку
+// @Summary Получить баланс по кошельку
+// @Description Получить баланс по кошельку
 // @Accept json
-// @Tags Task
-// @Param id query string true "Идентификатор задачи"
-// @Success 200 {object} model.TaskResp
+// @Tags wallet
+// @Param WALLET_UUID query string true "Идентификатор кошелька"
+// @Success 200 {object} map[string]interface{}
 // @Failure 400 {object} errResponse
 // @Failure 500 {object} errResponse
-// @Router /api/task [get]
+// @Router /api/v1/wallets/{WALLET_UUID:string} [get]
 func (h *WalletHandler) GetWalletBalanceByUUID(w http.ResponseWriter, r *http.Request) {
-	taskId := r.FormValue("id")
-	if taskId == "" {
-		err := fmt.Errorf("task id is empty")
-		log.Errorf("http.GetTask: %+v", err)
+	walletUUID := r.FormValue("WALLET_UUID")
+	if walletUUID == "" {
+		err := fmt.Errorf("wallet UUID is empty")
+		log.Errorf("get wallet balance by UUID error: %+v", err)
 
 		returnErr(http.StatusBadRequest, err, w)
 		return
 	}
 
-	taskResp, err := h.uc.GetWalletByUUID(taskId)
+	taskResp, err := h.uc.GetWalletBalanceByUUID(walletUUID)
 	if err != nil {
-		log.Errorf("http.GetTask: %+v", err)
+		log.Error("get wallet balance by UUID error: service is not allowed")
 
 		returnErr(http.StatusInternalServerError, err, w)
 		return
@@ -107,7 +110,7 @@ func (h *WalletHandler) GetWalletBalanceByUUID(w http.ResponseWriter, r *http.Re
 	w.WriteHeader(http.StatusCreated)
 	_, err = w.Write(resp)
 	if err != nil {
-		log.Errorf("http.GetTask: %+v", err)
+		log.Errorf("get wallet balance by UUID error: %+v", err)
 
 		returnErr(http.StatusInternalServerError, err, w)
 	}
@@ -128,6 +131,6 @@ func returnErr(status int, err error, w http.ResponseWriter) {
 	w.WriteHeader(status)
 	_, err = w.Write(messageJson)
 	if err != nil {
-
+		log.Errorf("get wallet balance by UUID error: %+v", err)
 	}
 }

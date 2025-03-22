@@ -24,6 +24,6 @@ func (t *WalletUsecase) CreateOperation(task *model.PaymentOperation) error {
 	return nil
 }
 
-func (t *WalletUsecase) GetWalletByUUID(id string) (*model.PaymentOperation, error) {
-	return t.DB.GetWalletByUUID(id)
+func (t *WalletUsecase) GetWalletBalanceByUUID(id string) (*model.PaymentOperation, error) {
+	return t.DB.GetWalletBalanceByUUID(id)
 }

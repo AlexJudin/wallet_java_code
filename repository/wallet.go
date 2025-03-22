@@ -29,14 +29,14 @@ func (r *WalletRepo) CreateOperation(task *model.PaymentOperation) error {
 	return nil
 }
 
-func (r *WalletRepo) GetWalletByUUID(id string) (*model.PaymentOperation, error) {
+func (r *WalletRepo) GetWalletBalanceByUUID(walletUUID string) (int, error) {
 	var task model.PaymentOperation
 
 	res, err := r.Db.Query(SQLGetTaskById, id)
 	if err != nil {
 		log.Debugf("Database.GetTaskById: %+v", err)
 
-		return nil, err
+		return 0, err
 	}
 	defer res.Close()
 
@@ -45,12 +45,12 @@ func (r *WalletRepo) GetWalletByUUID(id string) (*model.PaymentOperation, error)
 		if err != nil {
 			log.Debugf("Database.GetTaskById: %+v", err)
 
-			return nil, err
+			return 0, err
 		}
 	}
 
 	if err = res.Err(); err != nil {
-		return nil, err
+		return 0, err
 	}
 
 	/*
