@@ -1,9 +1,10 @@
 package repository
 
 import (
-	"github.com/AlexJudin/wallet_java_code/model"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
+
+	"github.com/AlexJudin/wallet_java_code/model"
 )
 
 var _ Wallet = (*WalletRepo)(nil)

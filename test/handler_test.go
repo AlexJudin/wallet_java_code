@@ -1,10 +1,11 @@
-package api
+package test
 
 import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
+	"github.com/AlexJudin/wallet_java_code/api"
 	"github.com/AlexJudin/wallet_java_code/config"
 	"github.com/AlexJudin/wallet_java_code/repository"
 	"github.com/AlexJudin/wallet_java_code/usecases"
@@ -28,7 +29,7 @@ func TestGetWalletBalanceByUUIDWhenOk(t *testing.T) {
 
 	// init usecases
 	walletUC := usecases.NewWalletUsecase(repo)
-	walletHandler := NewWalletHandler(walletUC)
+	walletHandler := api.NewWalletHandler(walletUC)
 
 	req := httptest.NewRequest("GET", "/api/v1/wallets/?WALLET_UUID=ec82ea03-2b53-4258-ba87-a7efae979c43", nil)
 
@@ -59,7 +60,7 @@ func TestGetWalletBalanceByUUIDWhenWalletUUIDIsEmpty(t *testing.T) {
 
 	// init usecases
 	walletUC := usecases.NewWalletUsecase(repo)
-	walletHandler := NewWalletHandler(walletUC)
+	walletHandler := api.NewWalletHandler(walletUC)
 
 	req := httptest.NewRequest("GET", "/api/v1/wallets/?WALLET_UUID=", nil)
 
@@ -95,7 +96,7 @@ func TestGetWalletBalanceByUUIDWhenMissingWalletUUID(t *testing.T) {
 
 	// init usecases
 	walletUC := usecases.NewWalletUsecase(repo)
-	walletHandler := NewWalletHandler(walletUC)
+	walletHandler := api.NewWalletHandler(walletUC)
 
 	req := httptest.NewRequest("GET", "/api/v1/wallets/", nil)
 
