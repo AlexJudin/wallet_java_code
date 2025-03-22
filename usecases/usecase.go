@@ -16,6 +16,10 @@ func NewWalletUsecase(db repository.Wallet) *WalletUsecase {
 }
 
 func (t *WalletUsecase) CreateOperation(paymentOperation *model.PaymentOperation) error {
+	if paymentOperation.OperationType == model.Deposit {
+		paymentOperation.Amount = -paymentOperation.Amount
+	}
+
 	err := t.DB.CreateOperation(paymentOperation)
 	if err != nil {
 		return err
