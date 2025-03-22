@@ -4,9 +4,9 @@ dep:
 .PHONY: dep
 
 # Запуск тестов
-test-i:
-	go test ./... -tags integration
-.PHONY: test-i
+test:
+	go test ./...
+.PHONY: test
 
 # Запуск всей системы в докер контейнере
 dk-start:
@@ -23,7 +23,6 @@ h:
 	@echo "Usage: make [target]"
 	@echo "  target is:"
 	@echo "       dep	- Обновление зависимостей"
-	@echo "    test-i	- Интеграционные тесты"
 	@echo "    test		- Запуск всех тестов"
 	@echo "  dk-start	- Запуск служб в докер контейнерах (окружения)"
 	@echo "   dk-stop	- Остановка запущенных служб (окружения)"
