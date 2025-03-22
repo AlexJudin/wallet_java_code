@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 
+	sq "github.com/Masterminds/squirrel"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/AlexJudin/wallet_java_code/model"
@@ -18,11 +19,24 @@ func NewWalletRepo(db *sql.DB) *WalletRepo {
 	return &WalletRepo{Db: db}
 }
 
-func (r *WalletRepo) CreateOperation(task *model.PaymentOperation) error {
-	_, err := r.Db.Exec(SQLCreateTask)
-	if err != nil {
-		log.Debugf("Database.CreateTask: %+v", err)
+func (r *WalletRepo) CreateOperation(paymentOperation *model.PaymentOperation) error {
+	log.Infof("start saving payment operation for wallet [%s]", paymentOperation.WalletId)
 
+	sqlText, args, err := sq.Insert("wallets").
+		Columns("wallet_guid", "operation_type", "amount").
+		Values(paymentOperation.WalletId, paymentOperation.OperationType, paymentOperation.Amount).
+		PlaceholderFormat(sq.Dollar).
+		ToSql()
+	if err != nil {
+		log.Debugf("unable to build INSERT query: %+v", err)
+		return err
+	}
+
+	log.Infof("executing SQL: %s", sqlText)
+
+	_, err = r.Db.Exec(sqlText, args...)
+	if err != nil {
+		log.Debugf("error create payment operation: %+v", err)
 		return err
 	}
 
@@ -30,21 +44,34 @@ func (r *WalletRepo) CreateOperation(task *model.PaymentOperation) error {
 }
 
 func (r *WalletRepo) GetWalletBalanceByUUID(walletUUID string) (int, error) {
-	var task model.PaymentOperation
+	log.Infof("start getting balance for wallet [%s]", walletUUID)
 
-	res, err := r.Db.Query(SQLGetTaskById, id)
+	var balance int
+
+	sqlText, args, err := sq.Select("amount").
+		From("wallets").
+		Where(sq.Eq{"id": walletUUID}).
+		PlaceholderFormat(sq.Dollar).
+		GroupBy("wallet_uuid").
+		ToSql()
 	if err != nil {
-		log.Debugf("Database.GetTaskById: %+v", err)
+		log.Debugf("unable to build SELECT query: %+v", err)
+		return 0, err
+	}
 
+	log.Infof("executing SQL: %s", sqlText)
+
+	res, err := r.Db.Query(sqlText, args...)
+	if err != nil {
+		log.Debugf("error get balance for wallet [%s]: %+v", walletUUID, err)
 		return 0, err
 	}
 	defer res.Close()
 
 	if res.Next() {
-		err = res.Scan(&task.Id, &task.Date, &task.Title, &task.Comment, &task.Repeat)
+		err = res.Scan(balance)
 		if err != nil {
-			log.Debugf("Database.GetTaskById: %+v", err)
-
+			log.Debug(err)
 			return 0, err
 		}
 	}
@@ -53,14 +80,5 @@ func (r *WalletRepo) GetWalletBalanceByUUID(walletUUID string) (int, error) {
 		return 0, err
 	}
 
-	/*
-		if task.Id == "" {
-			err = fmt.Errorf("task id %s not found", id)
-			log.Debugf("Database.GetTaskById: %+v", err)
-
-			return nil, err
-		}
-	*/
-
-	return &task, nil
+	return balance, nil
 }
