@@ -12,6 +12,8 @@ import (
 	"github.com/AlexJudin/wallet_java_code/usecases"
 )
 
+var messageError string
+
 type WalletHandler struct {
 	uc usecases.Wallet
 }
@@ -42,16 +44,18 @@ func (h *WalletHandler) CreateOperation(w http.ResponseWriter, r *http.Request) 
 
 	_, err := buf.ReadFrom(r.Body)
 	if err != nil {
-		log.Error("create payment operation: error reading body request")
+		log.Errorf("create payment operation: %+v", err)
+		messageError = "Переданы некорректные данные о платежной операции."
 
-		returnErr(http.StatusBadRequest, err, w)
+		returnErr(http.StatusBadRequest, messageError, w)
 		return
 	}
 
 	if err = json.Unmarshal(buf.Bytes(), &paymentOperation); err != nil {
-		log.Error("create payment operation: error unmarshalling body request to payment operation model")
+		log.Errorf("create payment operation: %+v", err)
+		messageError = "Не удалось прочитать данные о платежной операции."
 
-		returnErr(http.StatusBadRequest, err, w)
+		returnErr(http.StatusBadRequest, messageError, w)
 		return
 	}
 
@@ -61,8 +65,9 @@ func (h *WalletHandler) CreateOperation(w http.ResponseWriter, r *http.Request) 
 			paymentOperation.WalletId,
 			paymentOperation.OperationType,
 			paymentOperation.Amount)
+		messageError = "Ошибка сервера, не удалось сохранить данные о платежной операции. Попробуйте позже или обратитесь в тех. поддержку."
 
-		returnErr(http.StatusInternalServerError, err, w)
+		returnErr(http.StatusInternalServerError, messageError, w)
 		return
 	}
 
@@ -85,16 +90,18 @@ func (h *WalletHandler) GetWalletBalanceByUUID(w http.ResponseWriter, r *http.Re
 	if walletUUID == "" {
 		err := fmt.Errorf("wallet UUID is empty")
 		log.Errorf("get wallet balance by UUID error: %+v", err)
+		messageError = "Не передан идентификатор кошелька, получение баланса невозможно."
 
-		returnErr(http.StatusBadRequest, err, w)
+		returnErr(http.StatusBadRequest, messageError, w)
 		return
 	}
 
 	balance, err := h.uc.GetWalletBalanceByUUID(walletUUID)
 	if err != nil {
 		log.Error("get wallet balance by UUID error: service is not allowed")
+		messageError = "Ошибка сервера, не удалось получить баланс. Попробуйте позже или обратитесь в тех. поддержку."
 
-		returnErr(http.StatusInternalServerError, err, w)
+		returnErr(http.StatusInternalServerError, messageError, w)
 		return
 	}
 
@@ -104,9 +111,10 @@ func (h *WalletHandler) GetWalletBalanceByUUID(w http.ResponseWriter, r *http.Re
 
 	resp, err := json.Marshal(respMap)
 	if err != nil {
-		log.Errorf("http.GetTask: %+v", err)
+		log.Errorf("get wallet balance by UUID error: %+v", err)
+		messageError = "Ошибка сервера. Попробуйте позже или обратитесь в тех. поддержку."
 
-		returnErr(http.StatusInternalServerError, err, w)
+		returnErr(http.StatusInternalServerError, messageError, w)
 		return
 	}
 
@@ -115,14 +123,15 @@ func (h *WalletHandler) GetWalletBalanceByUUID(w http.ResponseWriter, r *http.Re
 	_, err = w.Write(resp)
 	if err != nil {
 		log.Errorf("get wallet balance by UUID error: %+v", err)
+		messageError = "Сервер недоступен. Попробуйте позже или обратитесь в тех. поддержку."
 
-		returnErr(http.StatusInternalServerError, err, w)
+		returnErr(http.StatusInternalServerError, messageError, w)
 	}
 }
 
-func returnErr(status int, err error, w http.ResponseWriter) {
+func returnErr(status int, messageError string, w http.ResponseWriter) {
 	message := errResponse{
-		Error: err.Error(),
+		Error: messageError,
 	}
 
 	messageJson, err := json.Marshal(message)

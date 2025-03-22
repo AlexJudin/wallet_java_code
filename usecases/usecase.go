@@ -15,8 +15,8 @@ func NewWalletUsecase(db repository.Wallet) *WalletUsecase {
 	return &WalletUsecase{DB: db}
 }
 
-func (t *WalletUsecase) CreateOperation(task *model.PaymentOperation) error {
-	err := t.DB.CreateOperation(task)
+func (t *WalletUsecase) CreateOperation(paymentOperation *model.PaymentOperation) error {
+	err := t.DB.CreateOperation(paymentOperation)
 	if err != nil {
 		return err
 	}
