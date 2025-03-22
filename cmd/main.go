@@ -18,7 +18,7 @@ import (
 )
 
 // @title Пользовательская документация API
-// @description Итоговая работа по курсу "Go-разработчик с нуля" (Яндекс Практикум)
+// @description Тестовое задание
 // @termsOfService spdante@mail.ru
 // @contact.name Alexey Yudin
 // @contact.email spdante@mail.ru
@@ -66,7 +66,7 @@ func main() {
 
 	r := chi.NewRouter()
 	r.Post("/api/v1/wallet", walletHandler.CreateOperation)
-	r.Get("/api/v1/wallets/{WALLET_UUID:string}", walletHandler.GetWalletBalanceByUUID)
+	r.Get("/api/v1/wallets/", walletHandler.GetWalletBalanceByUUID)
 
 	log.Info("Start http server")
 

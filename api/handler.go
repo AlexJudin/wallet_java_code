@@ -79,7 +79,7 @@ func (h *WalletHandler) CreateOperation(w http.ResponseWriter, r *http.Request) 
 // @Success 200 {object} map[string]interface{}
 // @Failure 400 {object} errResponse
 // @Failure 500 {object} errResponse
-// @Router /api/v1/wallets/{WALLET_UUID:string} [get]
+// @Router /api/v1/wallets/ [get]
 func (h *WalletHandler) GetWalletBalanceByUUID(w http.ResponseWriter, r *http.Request) {
 	walletUUID := r.FormValue("WALLET_UUID")
 	if walletUUID == "" {
@@ -90,7 +90,7 @@ func (h *WalletHandler) GetWalletBalanceByUUID(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	taskResp, err := h.uc.GetWalletBalanceByUUID(walletUUID)
+	balance, err := h.uc.GetWalletBalanceByUUID(walletUUID)
 	if err != nil {
 		log.Error("get wallet balance by UUID error: service is not allowed")
 
@@ -98,7 +98,11 @@ func (h *WalletHandler) GetWalletBalanceByUUID(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	resp, err := json.Marshal(taskResp)
+	respMap := map[string]interface{}{
+		"balance": balance,
+	}
+
+	resp, err := json.Marshal(respMap)
 	if err != nil {
 		log.Errorf("http.GetTask: %+v", err)
 
@@ -107,7 +111,7 @@ func (h *WalletHandler) GetWalletBalanceByUUID(w http.ResponseWriter, r *http.Re
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
+	w.WriteHeader(http.StatusOK)
 	_, err = w.Write(resp)
 	if err != nil {
 		log.Errorf("get wallet balance by UUID error: %+v", err)

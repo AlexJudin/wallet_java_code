@@ -3,7 +3,7 @@ services:
     container_name: wallet_http_pg
     image: postgres:latest
     environment:
-      POSTGRES_USER : 'pg_user'
+      POSTGRES_USER : 'user'
       POSTGRES_PASSWORD : 'password'
       POSTGRES_DB : 'wallet_db'
     ports:

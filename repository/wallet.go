@@ -48,11 +48,11 @@ func (r *WalletRepo) GetWalletBalanceByUUID(walletUUID string) (int, error) {
 
 	var balance int
 
-	sqlText, args, err := sq.Select("amount").
+	sqlText, args, err := sq.Select("SUM(amount) AS amount").
 		From("wallets").
-		Where(sq.Eq{"id": walletUUID}).
+		Where(sq.Eq{"wallet_guid": walletUUID}).
 		PlaceholderFormat(sq.Dollar).
-		GroupBy("wallet_uuid").
+		GroupBy("wallet_guid").
 		ToSql()
 	if err != nil {
 		log.Debugf("unable to build SELECT query: %+v", err)
@@ -69,7 +69,7 @@ func (r *WalletRepo) GetWalletBalanceByUUID(walletUUID string) (int, error) {
 	defer res.Close()
 
 	if res.Next() {
-		err = res.Scan(balance)
+		err = res.Scan(&balance)
 		if err != nil {
 			log.Debug(err)
 			return 0, err
