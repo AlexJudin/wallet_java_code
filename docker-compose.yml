@@ -1,13 +1,23 @@
 services:
-  postgres:
-    container_name: wallet_http_pg
-    image: postgres:latest
-    environment:
-      POSTGRES_USER : 'user'
-      POSTGRES_PASSWORD : 'password'
-      POSTGRES_DB : 'wallet_db'
+  web:
+    build: .
+    env_file:
+      - .env
     ports:
-      - "5433:5432"
+      - "7540:7540"
     volumes:
-      - ./data/postgresql:/var/lib/postgresql/data
-    restart: always
+      - .:/usr/src/app
+    command: go run cmd/main.go
+  db:
+    image: postgres:alpine
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-db:/var/lib/postgresql/data
+
+volumes:
+  postgres-db:

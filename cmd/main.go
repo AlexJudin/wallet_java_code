@@ -1,13 +1,10 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	log "github.com/sirupsen/logrus"
 
@@ -37,23 +34,8 @@ func main() {
 	log.Info("Start connection to database")
 
 	connStr := cfg.GetDataSourceName()
-	db, err := sql.Open("postgres", connStr)
+	db, err := repository.ConnectDB(connStr)
 	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
-
-	log.Info("Start migration database")
-
-	driver, err := postgres.WithInstance(db, &postgres.Config{})
-	m, err := migrate.NewWithDatabaseInstance(
-		"file://migrations",
-		cfg.СonfigDB.DBName, driver)
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = m.Up()
-	if err != nil && err.Error() != "no change" {
 		log.Fatal(err)
 	}
 
