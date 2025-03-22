@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
 
@@ -8,7 +9,6 @@ import (
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
-	"github.com/jmoiron/sqlx"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/AlexJudin/wallet_java_code/api"
@@ -26,6 +26,7 @@ import (
 // @host localhost:7540
 // @BasePath /
 func main() {
+	// init config
 	cfg, err := config.New()
 	if err != nil {
 		log.Fatal(err)
@@ -33,12 +34,16 @@ func main() {
 
 	log.SetLevel(cfg.LogLevel)
 
+	log.Info("Start connection to database")
+
 	connStr := cfg.GetDataSourceName()
-	db, err := sqlx.Open("postgres", connStr)
+	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
+
+	log.Info("Start migration database")
 
 	driver, err := postgres.WithInstance(db, &postgres.Config{})
 	m, err := migrate.NewWithDatabaseInstance(
@@ -61,9 +66,11 @@ func main() {
 
 	r := chi.NewRouter()
 	r.Post("/api/v1/wallet", walletHandler.CreateOperation)
-	r.Get("/api/v1/wallets/{WALLET_UUID:string}", walletHandler.GetWalletByUUID)
+	r.Get("/api/v1/wallets/{WALLET_UUID:string}", walletHandler.GetWalletBalanceByUUID)
 
-	serverAddress := fmt.Sprintf("localhost:%s", cfg.Port)
+	log.Info("Start http server")
+
+	serverAddress := fmt.Sprintf("%s:%s", cfg.Host, cfg.Port)
 	log.Infoln("Listening on " + serverAddress)
 	if err = http.ListenAndServe(serverAddress, r); err != nil {
 		log.Panicf("Start server error: %+v", err.Error())

@@ -9,18 +9,19 @@ import (
 )
 
 type Сonfig struct {
+	Host     string
 	Port     string
 	LogLevel log.Level
 	СonfigDB *СonfigDB
 }
 
 type СonfigDB struct {
-	Port     string `env:"DBPORT" envDefault:"5433"`
-	Host     string `env:"DBHOST,required"`
-	User     string `env:"DBUSER" envDefault:"http"`
-	Password string `env:"DBPASSWORD,required"`
-	DBName   string `env:"DBNAME" envDefault:"http"`
-	Sslmode  string `env:"SSLMODE" envDefault:"disable"`
+	Port     string
+	Host     string
+	User     string
+	Password string
+	DBName   string
+	Sslmode  string
 }
 
 func New() (*Сonfig, error) {
@@ -30,10 +31,10 @@ func New() (*Сonfig, error) {
 	}
 
 	cfg := Сonfig{
-		Port: os.Getenv("TODO_PORT"),
+		Port: os.Getenv("PORT"),
 	}
 
-	logLevel, err := log.ParseLevel(os.Getenv("TODO_LOGLEVEL"))
+	logLevel, err := log.ParseLevel(os.Getenv("LOGLEVEL"))
 	if err != nil {
 		return nil, err
 	}

@@ -1,2 +1,1 @@
-drop table users;
-drop table counterparty;
+DROP TABLE wallets;

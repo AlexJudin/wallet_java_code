@@ -1,14 +1,14 @@
 package model
 
-type OperationType string
+type PaymentOperationType string
 
 const (
-	Deposit  OperationType = "deposit"
-	Withdraw OperationType = "withdraw"
+	Deposit  PaymentOperationType = "deposit"
+	Withdraw PaymentOperationType = "withdraw"
 )
 
-type Operation struct {
-	WalletId      string        `json:"walletId"`
-	OperationType OperationType `json:"operationType"`
-	Amount        int64         `json:"amount"`
+type PaymentOperation struct {
+	WalletId      string               `json:"walletId"`
+	OperationType PaymentOperationType `json:"operationType"`
+	Amount        int64                `json:"amount"`
 }

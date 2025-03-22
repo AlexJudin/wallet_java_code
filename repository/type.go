@@ -5,6 +5,6 @@ import (
 )
 
 type Wallet interface {
-	CreateOperation(task *model.Operation) error
-	GetWalletByUUID(id string) (*model.Operation, error)
+	CreateOperation(task *model.PaymentOperation) error
+	GetWalletByUUID(id string) (*model.PaymentOperation, error)
 }

@@ -1,9 +1,8 @@
 package repository
 
 import (
-	"fmt"
+	"database/sql"
 
-	"github.com/jmoiron/sqlx"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/AlexJudin/wallet_java_code/model"
@@ -12,15 +11,15 @@ import (
 var _ Wallet = (*WalletRepo)(nil)
 
 type WalletRepo struct {
-	Db *sqlx.DB
+	Db *sql.DB
 }
 
-func NewWalletRepo(db *sqlx.DB) *WalletRepo {
+func NewWalletRepo(db *sql.DB) *WalletRepo {
 	return &WalletRepo{Db: db}
 }
 
-func (r *WalletRepo) CreateOperation(task *model.Operation) error {
-	_, err := r.Db.Exec(SQLCreateTask, task.Date, task.Title, task.Comment, task.Repeat)
+func (r *WalletRepo) CreateOperation(task *model.PaymentOperation) error {
+	_, err := r.Db.Exec(SQLCreateTask)
 	if err != nil {
 		log.Debugf("Database.CreateTask: %+v", err)
 
@@ -30,8 +29,8 @@ func (r *WalletRepo) CreateOperation(task *model.Operation) error {
 	return nil
 }
 
-func (r *WalletRepo) GetWalletByUUID(id string) (*model.Operation, error) {
-	var task model.Operation
+func (r *WalletRepo) GetWalletByUUID(id string) (*model.PaymentOperation, error) {
+	var task model.PaymentOperation
 
 	res, err := r.Db.Query(SQLGetTaskById, id)
 	if err != nil {
@@ -54,12 +53,14 @@ func (r *WalletRepo) GetWalletByUUID(id string) (*model.Operation, error) {
 		return nil, err
 	}
 
-	if task.Id == "" {
-		err = fmt.Errorf("task id %s not found", id)
-		log.Debugf("Database.GetTaskById: %+v", err)
+	/*
+		if task.Id == "" {
+			err = fmt.Errorf("task id %s not found", id)
+			log.Debugf("Database.GetTaskById: %+v", err)
 
-		return nil, err
-	}
+			return nil, err
+		}
+	*/
 
 	return &task, nil
 }

@@ -30,45 +30,36 @@ type errResponse struct {
 // @Accept json
 // @Tags Task
 // @Param Body body model.Task true "Параметры задачи"
-// @Success 201 {object} model.TaskResp
+// @Success 201 {int}    http.StatusCreated
 // @Failure 400 {object} errResponse
 // @Failure 500 {object} errResponse
 // @Router /api/task [post]
 func (h *WalletHandler) CreateOperation(w http.ResponseWriter, r *http.Request) {
 	var (
-		task model.Operation
-		buf  bytes.Buffer
+		paymentOperation model.PaymentOperation
+		buf              bytes.Buffer
 	)
 
 	_, err := buf.ReadFrom(r.Body)
 	if err != nil {
-		log.Errorf("http.CreateTask: %+v", err)
+		log.Error("create payment operation: error reading body request")
 
-		errResp := errResponse{
-			Error: err.Error(),
-		}
-		returnErr(http.StatusBadRequest, errResp, w)
+		returnErr(http.StatusBadRequest, err, w)
 		return
 	}
 
-	if err = json.Unmarshal(buf.Bytes(), &task); err != nil {
-		log.Errorf("http.CreateTask: %+v", err)
+	if err = json.Unmarshal(buf.Bytes(), &paymentOperation); err != nil {
+		log.Error("create payment operation: error unmarshalling body request to payment operation model")
 
-		errResp := errResponse{
-			Error: err.Error(),
-		}
-		returnErr(http.StatusBadRequest, errResp, w)
+		returnErr(http.StatusBadRequest, err, w)
 		return
 	}
 
-	err = h.uc.CreateOperation(&task)
+	err = h.uc.CreateOperation(&paymentOperation)
 	if err != nil {
 		log.Errorf("http.CreateTask: %+v", err)
 
-		errResp := errResponse{
-			Error: err.Error(),
-		}
-		returnErr(http.StatusInternalServerError, errResp, w)
+		returnErr(http.StatusInternalServerError, err, w)
 		return
 	}
 
@@ -76,7 +67,7 @@ func (h *WalletHandler) CreateOperation(w http.ResponseWriter, r *http.Request) 
 	w.WriteHeader(http.StatusCreated)
 }
 
-// GetWalletByUUID ... Получить задачу
+// GetWalletBalanceByUUID ... Получить задачу
 // @Summary Получить задачу
 // @Description Получить задачу
 // @Accept json
@@ -86,16 +77,13 @@ func (h *WalletHandler) CreateOperation(w http.ResponseWriter, r *http.Request) 
 // @Failure 400 {object} errResponse
 // @Failure 500 {object} errResponse
 // @Router /api/task [get]
-func (h *WalletHandler) GetWalletByUUID(w http.ResponseWriter, r *http.Request) {
+func (h *WalletHandler) GetWalletBalanceByUUID(w http.ResponseWriter, r *http.Request) {
 	taskId := r.FormValue("id")
 	if taskId == "" {
 		err := fmt.Errorf("task id is empty")
 		log.Errorf("http.GetTask: %+v", err)
 
-		errResp := errResponse{
-			Error: err.Error(),
-		}
-		returnErr(http.StatusBadRequest, errResp, w)
+		returnErr(http.StatusBadRequest, err, w)
 		return
 	}
 
@@ -103,10 +91,7 @@ func (h *WalletHandler) GetWalletByUUID(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		log.Errorf("http.GetTask: %+v", err)
 
-		errResp := errResponse{
-			Error: err.Error(),
-		}
-		returnErr(http.StatusInternalServerError, errResp, w)
+		returnErr(http.StatusInternalServerError, err, w)
 		return
 	}
 
@@ -114,10 +99,7 @@ func (h *WalletHandler) GetWalletByUUID(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		log.Errorf("http.GetTask: %+v", err)
 
-		errResp := errResponse{
-			Error: err.Error(),
-		}
-		returnErr(http.StatusInternalServerError, errResp, w)
+		returnErr(http.StatusInternalServerError, err, w)
 		return
 	}
 
@@ -127,14 +109,15 @@ func (h *WalletHandler) GetWalletByUUID(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		log.Errorf("http.GetTask: %+v", err)
 
-		errResp := errResponse{
-			Error: err.Error(),
-		}
-		returnErr(http.StatusInternalServerError, errResp, w)
+		returnErr(http.StatusInternalServerError, err, w)
 	}
 }
 
-func returnErr(status int, message interface{}, w http.ResponseWriter) {
+func returnErr(status int, err error, w http.ResponseWriter) {
+	message := errResponse{
+		Error: err.Error(),
+	}
+
 	messageJson, err := json.Marshal(message)
 	if err != nil {
 		status = http.StatusInternalServerError
@@ -143,5 +126,8 @@ func returnErr(status int, message interface{}, w http.ResponseWriter) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	_, _ = w.Write(messageJson)
+	_, err = w.Write(messageJson)
+	if err != nil {
+
+	}
 }
