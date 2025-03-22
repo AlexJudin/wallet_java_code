@@ -3,8 +3,10 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/httprate"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	log "github.com/sirupsen/logrus"
 
@@ -45,6 +47,7 @@ func main() {
 	walletHandler := api.NewWalletHandler(walletUC)
 
 	r := chi.NewRouter()
+	r.Use(httprate.LimitByIP(1000, time.Second))
 	r.Post("/api/v1/wallet", walletHandler.CreateOperation)
 	r.Get("/api/v1/wallets/", walletHandler.GetWalletBalanceByUUID)
 
