@@ -17,7 +17,6 @@ type Сonfig struct {
 
 type СonfigDB struct {
 	Port     string
-	Host     string
 	User     string
 	Password string
 	DBName   string
@@ -44,11 +43,9 @@ func New() (*Сonfig, error) {
 
 	dbCfg := СonfigDB{
 		Port:     os.Getenv("DB_PORT"),
-		Host:     os.Getenv("DB_HOST"),
 		User:     os.Getenv("DB_USER"),
 		Password: os.Getenv("DB_PASSWORD"),
 		DBName:   os.Getenv("DB_NAME"),
-		Sslmode:  os.Getenv("DB_SSLMODE"),
 	}
 
 	cfg.СonfigDB = &dbCfg
@@ -57,8 +54,8 @@ func New() (*Сonfig, error) {
 }
 
 func (c *Сonfig) GetDataSourceName() string {
-	str := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
-		c.СonfigDB.Host, c.СonfigDB.Port, c.СonfigDB.User, c.СonfigDB.Password, c.СonfigDB.DBName, c.СonfigDB.Sslmode)
+	str := fmt.Sprintf("host=db port=%s user=%s password=%s dbname=%s sslmode=disable",
+		c.СonfigDB.Port, c.СonfigDB.User, c.СonfigDB.Password, c.СonfigDB.DBName)
 
 	return str
 }

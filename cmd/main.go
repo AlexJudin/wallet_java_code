@@ -31,8 +31,6 @@ func main() {
 
 	log.SetLevel(cfg.LogLevel)
 
-	log.Info("Start connection to database")
-
 	connStr := cfg.GetDataSourceName()
 	db, err := repository.ConnectDB(connStr)
 	if err != nil {
@@ -52,7 +50,7 @@ func main() {
 
 	log.Info("Start http server")
 
-	serverAddress := fmt.Sprintf("%s:%s", cfg.Host, cfg.Port)
+	serverAddress := fmt.Sprintf(":%s", cfg.Port)
 	log.Infoln("Listening on " + serverAddress)
 	if err = http.ListenAndServe(serverAddress, r); err != nil {
 		log.Panicf("Start server error: %+v", err.Error())

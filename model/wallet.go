@@ -1,6 +1,8 @@
 package model
 
-import "gorm.io/gorm"
+import (
+	"time"
+)
 
 type PaymentOperationType string
 
@@ -10,8 +12,8 @@ const (
 )
 
 type PaymentOperation struct {
-	gorm.Model
-	ID            uint                 `json:"id" gorm:"primaryKey"`
+	ID            uint `gorm:"primarykey"`
+	CreatedAt     time.Time
 	WalletId      string               `json:"walletId"`
 	OperationType PaymentOperationType `json:"operationType"`
 	Amount        int64                `json:"amount"`

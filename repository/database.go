@@ -9,6 +9,8 @@ import (
 )
 
 func ConnectDB(connStr string) (*gorm.DB, error) {
+	log.Info("Start connection to database")
+
 	db, err := gorm.Open(postgres.Open(connStr), &gorm.Config{})
 	if err != nil {
 		return nil, err
