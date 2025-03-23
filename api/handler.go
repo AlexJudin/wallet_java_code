@@ -3,6 +3,7 @@ package api
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -60,7 +61,14 @@ func (h *WalletHandler) CreateOperation(w http.ResponseWriter, r *http.Request) 
 	}
 
 	err = h.uc.CreateOperation(&paymentOperation)
-	if err != nil {
+	switch {
+	case errors.Is(err, model.InsufficientFundsErr):
+		log.Errorf("wallet [%s] error: %+v", err)
+		messageError = "Недостаточно средств."
+
+		returnErr(http.StatusOK, messageError, w)
+		return
+	case err != nil:
 		log.Errorf("create payment operation: error create payment operation for wallet [%s], operation type [%s], amount [%d]: service is not allowed",
 			paymentOperation.WalletId,
 			paymentOperation.OperationType,

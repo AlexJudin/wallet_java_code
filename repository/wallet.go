@@ -29,11 +29,11 @@ func (r *WalletRepo) CreateOperation(paymentOperation *model.PaymentOperation) e
 	return nil
 }
 
-func (r *WalletRepo) GetWalletBalanceByUUID(walletUUID string) (int, error) {
+func (r *WalletRepo) GetWalletBalanceByUUID(walletUUID string) (int64, error) {
 	log.Infof("start getting balance for wallet [%s]", walletUUID)
 
 	result := struct {
-		Balance int
+		Balance int64
 	}{}
 
 	err := r.Db.Model(&model.PaymentOperation{}).

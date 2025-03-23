@@ -16,7 +16,16 @@ func NewWalletUsecase(db repository.Wallet) *WalletUsecase {
 }
 
 func (t *WalletUsecase) CreateOperation(paymentOperation *model.PaymentOperation) error {
-	if paymentOperation.OperationType == model.Deposit {
+	if paymentOperation.OperationType == model.Withdraw {
+		balance, err := t.DB.GetWalletBalanceByUUID(paymentOperation.WalletId)
+		if err != nil {
+			return err
+		}
+
+		if balance < paymentOperation.Amount {
+			return model.InsufficientFundsErr
+		}
+
 		paymentOperation.Amount = -paymentOperation.Amount
 	}
 
@@ -28,6 +37,6 @@ func (t *WalletUsecase) CreateOperation(paymentOperation *model.PaymentOperation
 	return nil
 }
 
-func (t *WalletUsecase) GetWalletBalanceByUUID(id string) (int, error) {
-	return t.DB.GetWalletBalanceByUUID(id)
+func (t *WalletUsecase) GetWalletBalanceByUUID(walletUUID string) (int64, error) {
+	return t.DB.GetWalletBalanceByUUID(walletUUID)
 }
