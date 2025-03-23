@@ -14,7 +14,7 @@ const (
 type PaymentOperation struct {
 	ID            uint `gorm:"primarykey"`
 	CreatedAt     time.Time
-	WalletId      string               `json:"walletId"`
-	OperationType PaymentOperationType `json:"operationType"`
-	Amount        int64                `json:"amount"`
+	WalletId      string               `json:"walletId" gorm:"not null"`
+	OperationType PaymentOperationType `json:"operationType" gorm:"not null"`
+	Amount        int64                `json:"amount" gorm:"default 0"`
 }

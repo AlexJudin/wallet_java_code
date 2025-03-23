@@ -19,8 +19,8 @@ var (
 )
 
 type WalletTest struct {
-	db            *gorm.DB
-	walletHandler api.WalletHandler
+	db      *gorm.DB
+	handler api.WalletHandler
 }
 
 func TestMain(m *testing.M) {
@@ -56,7 +56,7 @@ func initialize() error {
 
 	// init usecases
 	walletUC := usecases.NewWalletUsecase(repo)
-	walletTest.walletHandler = api.NewWalletHandler(walletUC)
+	walletTest.handler = api.NewWalletHandler(walletUC)
 
 	return nil
 }

@@ -3,6 +3,7 @@ package test
 import (
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
@@ -10,7 +11,7 @@ func TestGetWalletBalanceByUUIDWhenOk(t *testing.T) {
 	req := httptest.NewRequest("GET", "/api/v1/wallets/?WALLET_UUID=ec82ea03-2b53-4258-ba87-a7efae979c43", nil)
 
 	responseRecorder := httptest.NewRecorder()
-	handler := http.HandlerFunc(walletTest.walletHandler.GetWalletBalanceByUUID)
+	handler := http.HandlerFunc(walletTest.handler.GetWalletBalanceByUUID)
 	handler.ServeHTTP(responseRecorder, req)
 
 	if status := responseRecorder.Code; status != http.StatusOK {
@@ -22,14 +23,14 @@ func TestGetWalletBalanceByUUIDWhenWalletUUIDIsEmpty(t *testing.T) {
 	req := httptest.NewRequest("GET", "/api/v1/wallets/?WALLET_UUID=", nil)
 
 	responseRecorder := httptest.NewRecorder()
-	handler := http.HandlerFunc(walletTest.walletHandler.GetWalletBalanceByUUID)
+	handler := http.HandlerFunc(walletTest.handler.GetWalletBalanceByUUID)
 	handler.ServeHTTP(responseRecorder, req)
 
-	if status := responseRecorder.Code; status != http.StatusInternalServerError {
-		t.Errorf("expected status code: %d, got %d", http.StatusInternalServerError, status)
+	if status := responseRecorder.Code; status != http.StatusBadRequest {
+		t.Errorf("expected status code: %d, got %d", http.StatusBadRequest, status)
 	}
 
-	expected := `count missing`
+	expected := `{"error":"Не передан идентификатор кошелька, получение баланса невозможно."}`
 	if responseRecorder.Body.String() != expected {
 		t.Errorf("expected body: %s, got %s", expected, responseRecorder.Body.String())
 	}
@@ -39,14 +40,100 @@ func TestGetWalletBalanceByUUIDWhenMissingWalletUUID(t *testing.T) {
 	req := httptest.NewRequest("GET", "/api/v1/wallets/", nil)
 
 	responseRecorder := httptest.NewRecorder()
-	handler := http.HandlerFunc(walletTest.walletHandler.GetWalletBalanceByUUID)
+	handler := http.HandlerFunc(walletTest.handler.GetWalletBalanceByUUID)
 	handler.ServeHTTP(responseRecorder, req)
 
 	if status := responseRecorder.Code; status != http.StatusBadRequest {
 		t.Errorf("expected status code: %d, got %d", http.StatusBadRequest, status)
 	}
 
-	expected := `count missing`
+	expected := `{"error":"Не передан идентификатор кошелька, получение баланса невозможно."}`
+	if responseRecorder.Body.String() != expected {
+		t.Errorf("expected body: %s, got %s", expected, responseRecorder.Body.String())
+	}
+}
+
+func TestGetWalletBalanceByUUIDWhenMissingConnectToDB(t *testing.T) {
+	req := httptest.NewRequest("GET", "/api/v1/wallets/?WALLET_UUID=ec82ea03-2b53-4258-ba87-a7efae979c43", nil)
+
+	responseRecorder := httptest.NewRecorder()
+	handler := http.HandlerFunc(walletTest.handler.GetWalletBalanceByUUID)
+	handler.ServeHTTP(responseRecorder, req)
+
+	if status := responseRecorder.Code; status != http.StatusInternalServerError {
+		t.Errorf("expected status code: %d, got %d", http.StatusInternalServerError, status)
+	}
+
+	expected := `{"error":"Ошибка сервера, не удалось получить баланс. Попробуйте позже или обратитесь в тех. поддержку."}`
+	if responseRecorder.Body.String() != expected {
+		t.Errorf("expected body: %s, got %s", expected, responseRecorder.Body.String())
+	}
+}
+
+func TestCreateOperationWhenOk(t *testing.T) {
+	bodyJSON := `{"walletId":"ec82ea03-2b53-4258-ba87-a7efae979c43", "operationType":"withdraw", "amount": 4000}`
+
+	req := httptest.NewRequest("POST", "/api/v1/wallet", strings.NewReader(bodyJSON))
+
+	responseRecorder := httptest.NewRecorder()
+	handler := http.HandlerFunc(walletTest.handler.CreateOperation)
+	handler.ServeHTTP(responseRecorder, req)
+
+	if status := responseRecorder.Code; status != http.StatusCreated {
+		t.Errorf("expected status code: %d, got %d", http.StatusCreated, status)
+	}
+}
+
+func TestCreateOperationWhenBodyIsEmpty(t *testing.T) {
+	req := httptest.NewRequest("POST", "/api/v1/wallet", nil)
+
+	responseRecorder := httptest.NewRecorder()
+	handler := http.HandlerFunc(walletTest.handler.CreateOperation)
+	handler.ServeHTTP(responseRecorder, req)
+
+	if status := responseRecorder.Code; status != http.StatusBadRequest {
+		t.Errorf("expected status code: %d, got %d", http.StatusBadRequest, status)
+	}
+
+	expected := `{"error":"Не удалось прочитать данные о платежной операции."}`
+	if responseRecorder.Body.String() != expected {
+		t.Errorf("expected body: %s, got %s", expected, responseRecorder.Body.String())
+	}
+}
+
+func TestCreateOperationWhenUncorrectBody(t *testing.T) {
+	bodyJSON := `{"walletId":"ec82ea03-2b53-4258-ba87-a7efae979c43", "operationType":1, "amount": 4000}`
+
+	req := httptest.NewRequest("POST", "/api/v1/wallet", strings.NewReader(bodyJSON))
+
+	responseRecorder := httptest.NewRecorder()
+	handler := http.HandlerFunc(walletTest.handler.CreateOperation)
+	handler.ServeHTTP(responseRecorder, req)
+
+	if status := responseRecorder.Code; status != http.StatusBadRequest {
+		t.Errorf("expected status code: %d, got %d", http.StatusBadRequest, status)
+	}
+
+	expected := `{"error":"Не удалось прочитать данные о платежной операции."}`
+	if responseRecorder.Body.String() != expected {
+		t.Errorf("expected body: %s, got %s", expected, responseRecorder.Body.String())
+	}
+}
+
+func TestCreateOperationWhenDBError(t *testing.T) {
+	bodyJSON := `{"walletId":"ec82ea03-2b53-4258-ba87-a7efae979c43", "amount": 4000}`
+
+	req := httptest.NewRequest("POST", "/api/v1/wallet", strings.NewReader(bodyJSON))
+
+	responseRecorder := httptest.NewRecorder()
+	handler := http.HandlerFunc(walletTest.handler.CreateOperation)
+	handler.ServeHTTP(responseRecorder, req)
+
+	if status := responseRecorder.Code; status != http.StatusInternalServerError {
+		t.Errorf("expected status code: %d, got %d", http.StatusInternalServerError, status)
+	}
+
+	expected := `{"error":"Ошибка сервера, не удалось сохранить данные о платежной операции. Попробуйте позже или обратитесь в тех. поддержку."}`
 	if responseRecorder.Body.String() != expected {
 		t.Errorf("expected body: %s, got %s", expected, responseRecorder.Body.String())
 	}
