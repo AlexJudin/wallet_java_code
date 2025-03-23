@@ -5,11 +5,7 @@ dep:
 
 # Запуск тестов
 test:
-	cd test
-	docker compose up -d
 	go test ./...
-	docker compose down
-	cd ..
 .PHONY: test
 
 # Запуск всей системы в докер контейнере
