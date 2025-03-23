@@ -5,7 +5,7 @@ dep:
 
 # Запуск тестов
 test:
-	go test ./...
+	go test ./test
 .PHONY: test
 
 # Запуск всей системы в докер контейнере

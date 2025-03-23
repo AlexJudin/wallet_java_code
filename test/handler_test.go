@@ -53,26 +53,8 @@ func TestGetWalletBalanceByUUIDWhenMissingWalletUUID(t *testing.T) {
 	}
 }
 
-func TestGetWalletBalanceByUUIDWhenMissingConnectToDB(t *testing.T) {
-	req := httptest.NewRequest("GET", "/api/v1/wallets/?WALLET_UUID=ec82ea03-2b53-4258-ba87-a7efae979c43", nil)
-
-	responseRecorder := httptest.NewRecorder()
-	handler := http.HandlerFunc(walletTest.handler.GetWalletBalanceByUUID)
-	handler.ServeHTTP(responseRecorder, req)
-
-	if status := responseRecorder.Code; status != http.StatusInternalServerError {
-		t.Errorf("expected status code: %d, got %d", http.StatusInternalServerError, status)
-	}
-
-	expected := `{"error":"Ошибка сервера, не удалось получить баланс. Попробуйте позже или обратитесь в тех. поддержку."}`
-	if responseRecorder.Body.String() != expected {
-		t.Errorf("expected body: %s, got %s", expected, responseRecorder.Body.String())
-	}
-}
-
 func TestCreateOperationWhenOk(t *testing.T) {
 	bodyJSON := `{"walletId":"ec82ea03-2b53-4258-ba87-a7efae979c43", "operationType":"withdraw", "amount": 4000}`
-
 	req := httptest.NewRequest("POST", "/api/v1/wallet", strings.NewReader(bodyJSON))
 
 	responseRecorder := httptest.NewRecorder()
@@ -103,7 +85,6 @@ func TestCreateOperationWhenBodyIsEmpty(t *testing.T) {
 
 func TestCreateOperationWhenUncorrectBody(t *testing.T) {
 	bodyJSON := `{"walletId":"ec82ea03-2b53-4258-ba87-a7efae979c43", "operationType":1, "amount": 4000}`
-
 	req := httptest.NewRequest("POST", "/api/v1/wallet", strings.NewReader(bodyJSON))
 
 	responseRecorder := httptest.NewRecorder()
@@ -120,9 +101,38 @@ func TestCreateOperationWhenUncorrectBody(t *testing.T) {
 	}
 }
 
-func TestCreateOperationWhenDBError(t *testing.T) {
-	bodyJSON := `{"walletId":"ec82ea03-2b53-4258-ba87-a7efae979c43", "amount": 4000}`
+// When missing connect to database
+func TestGetWalletBalanceByUUIDWhenMissingConnectToDB(t *testing.T) {
+	err := closeDB()
+	if err != nil {
+		t.Error(err)
+		return
+	}
 
+	req := httptest.NewRequest("GET", "/api/v1/wallets/?WALLET_UUID=ec82ea03-2b53-4258-ba87-a7efae979c43", nil)
+
+	responseRecorder := httptest.NewRecorder()
+	handler := http.HandlerFunc(walletTest.handler.GetWalletBalanceByUUID)
+	handler.ServeHTTP(responseRecorder, req)
+
+	if status := responseRecorder.Code; status != http.StatusInternalServerError {
+		t.Errorf("expected status code: %d, got %d", http.StatusInternalServerError, status)
+	}
+
+	expected := `{"error":"Ошибка сервера, не удалось получить баланс. Попробуйте позже или обратитесь в тех. поддержку."}`
+	if responseRecorder.Body.String() != expected {
+		t.Errorf("expected body: %s, got %s", expected, responseRecorder.Body.String())
+	}
+}
+
+func TestCreateOperationWhenMissingConnectToDB(t *testing.T) {
+	err := closeDB()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	bodyJSON := `{"walletId":"ec82ea03-2b53-4258-ba87-a7efae979c43", "operationType":"withdraw", "amount": 4000}`
 	req := httptest.NewRequest("POST", "/api/v1/wallet", strings.NewReader(bodyJSON))
 
 	responseRecorder := httptest.NewRecorder()

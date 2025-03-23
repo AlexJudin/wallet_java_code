@@ -60,3 +60,16 @@ func initialize() error {
 
 	return nil
 }
+
+func closeDB() error {
+	dbInstance, err := walletTest.db.DB()
+	if err != nil {
+		return err
+	}
+	err = dbInstance.Close()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
