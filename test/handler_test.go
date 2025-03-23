@@ -4,37 +4,13 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
-	"github.com/AlexJudin/wallet_java_code/api"
-	"github.com/AlexJudin/wallet_java_code/config"
-	"github.com/AlexJudin/wallet_java_code/repository"
-	"github.com/AlexJudin/wallet_java_code/usecases"
 )
 
 func TestGetWalletBalanceByUUIDWhenOk(t *testing.T) {
-	// init config
-	cfg, err := config.New()
-	if err != nil {
-		return
-	}
-
-	connStr := cfg.GetDataSourceName()
-	db, err := repository.ConnectDB(connStr)
-	if err != nil {
-		return
-	}
-
-	// init repository
-	repo := repository.NewWalletRepo(db)
-
-	// init usecases
-	walletUC := usecases.NewWalletUsecase(repo)
-	walletHandler := api.NewWalletHandler(walletUC)
-
 	req := httptest.NewRequest("GET", "/api/v1/wallets/?WALLET_UUID=ec82ea03-2b53-4258-ba87-a7efae979c43", nil)
 
 	responseRecorder := httptest.NewRecorder()
-	handler := http.HandlerFunc(walletHandler.GetWalletBalanceByUUID)
+	handler := http.HandlerFunc(walletTest.walletHandler.GetWalletBalanceByUUID)
 	handler.ServeHTTP(responseRecorder, req)
 
 	if status := responseRecorder.Code; status != http.StatusOK {
@@ -43,29 +19,10 @@ func TestGetWalletBalanceByUUIDWhenOk(t *testing.T) {
 }
 
 func TestGetWalletBalanceByUUIDWhenWalletUUIDIsEmpty(t *testing.T) {
-	// init config
-	cfg, err := config.New()
-	if err != nil {
-		return
-	}
-
-	connStr := cfg.GetDataSourceName()
-	db, err := repository.ConnectDB(connStr)
-	if err != nil {
-		return
-	}
-
-	// init repository
-	repo := repository.NewWalletRepo(db)
-
-	// init usecases
-	walletUC := usecases.NewWalletUsecase(repo)
-	walletHandler := api.NewWalletHandler(walletUC)
-
 	req := httptest.NewRequest("GET", "/api/v1/wallets/?WALLET_UUID=", nil)
 
 	responseRecorder := httptest.NewRecorder()
-	handler := http.HandlerFunc(walletHandler.GetWalletBalanceByUUID)
+	handler := http.HandlerFunc(walletTest.walletHandler.GetWalletBalanceByUUID)
 	handler.ServeHTTP(responseRecorder, req)
 
 	if status := responseRecorder.Code; status != http.StatusInternalServerError {
@@ -79,29 +36,10 @@ func TestGetWalletBalanceByUUIDWhenWalletUUIDIsEmpty(t *testing.T) {
 }
 
 func TestGetWalletBalanceByUUIDWhenMissingWalletUUID(t *testing.T) {
-	// init config
-	cfg, err := config.New()
-	if err != nil {
-		return
-	}
-
-	connStr := cfg.GetDataSourceName()
-	db, err := repository.ConnectDB(connStr)
-	if err != nil {
-		return
-	}
-
-	// init repository
-	repo := repository.NewWalletRepo(db)
-
-	// init usecases
-	walletUC := usecases.NewWalletUsecase(repo)
-	walletHandler := api.NewWalletHandler(walletUC)
-
 	req := httptest.NewRequest("GET", "/api/v1/wallets/", nil)
 
 	responseRecorder := httptest.NewRecorder()
-	handler := http.HandlerFunc(walletHandler.GetWalletBalanceByUUID)
+	handler := http.HandlerFunc(walletTest.walletHandler.GetWalletBalanceByUUID)
 	handler.ServeHTTP(responseRecorder, req)
 
 	if status := responseRecorder.Code; status != http.StatusBadRequest {
