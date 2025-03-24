@@ -1,0 +1,137 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Тестовое задание",
+        "title": "Пользовательская документация API",
+        "termsOfService": "spdante@mail.ru",
+        "contact": {
+            "name": "Alexey Yudin",
+            "email": "spdante@mail.ru"
+        },
+        "version": "1.0.0"
+    },
+    "host": "localhost:7540",
+    "basePath": "/",
+    "paths": {
+        "/api/v1/wallet": {
+            "post": {
+                "description": "Добавить новую платежную операцию по кошельку",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "wallet"
+                ],
+                "summary": "Добавить новую платежную операцию",
+                "parameters": [
+                    {
+                        "description": "Параметры операции",
+                        "name": "Body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/swagmodel.PaymentOperation"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "int"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.errResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.errResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/wallets/": {
+            "get": {
+                "description": "Получить баланс по кошельку",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "wallet"
+                ],
+                "summary": "Получить баланс по кошельку",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Идентификатор кошелька",
+                        "name": "WALLET_UUID",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.errResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.errResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "api.errResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.PaymentOperationType": {
+            "type": "string",
+            "enum": [
+                "deposit",
+                "withdraw"
+            ],
+            "x-enum-varnames": [
+                "Deposit",
+                "Withdraw"
+            ]
+        },
+        "swagmodel.PaymentOperation": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                },
+                "operationType": {
+                    "$ref": "#/definitions/model.PaymentOperationType"
+                },
+                "walletId": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

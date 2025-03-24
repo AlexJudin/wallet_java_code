@@ -1,0 +1,91 @@
+basePath: /
+definitions:
+  api.errResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  model.PaymentOperationType:
+    enum:
+    - deposit
+    - withdraw
+    type: string
+    x-enum-varnames:
+    - Deposit
+    - Withdraw
+  swagmodel.PaymentOperation:
+    properties:
+      amount:
+        type: integer
+      operationType:
+        $ref: '#/definitions/model.PaymentOperationType'
+      walletId:
+        type: string
+    type: object
+host: localhost:7540
+info:
+  contact:
+    email: spdante@mail.ru
+    name: Alexey Yudin
+  description: Тестовое задание
+  termsOfService: spdante@mail.ru
+  title: Пользовательская документация API
+  version: 1.0.0
+paths:
+  /api/v1/wallet:
+    post:
+      consumes:
+      - application/json
+      description: Добавить новую платежную операцию по кошельку
+      parameters:
+      - description: Параметры операции
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/swagmodel.PaymentOperation'
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: int
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errResponse'
+      summary: Добавить новую платежную операцию
+      tags:
+      - wallet
+  /api/v1/wallets/:
+    get:
+      consumes:
+      - application/json
+      description: Получить баланс по кошельку
+      parameters:
+      - description: Идентификатор кошелька
+        in: query
+        name: WALLET_UUID
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.errResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.errResponse'
+      summary: Получить баланс по кошельку
+      tags:
+      - wallet
+swagger: "2.0"
