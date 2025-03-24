@@ -32,7 +32,7 @@ type errResponse struct {
 // @Description Добавить новую платежную операцию по кошельку
 // @Accept json
 // @Tags wallet
-// @Param Body body model.PaymentOperation true "Параметры операции"
+// @Param Body body swagmodel.PaymentOperation true "Параметры операции"
 // @Success 201 {int}    http.StatusCreated
 // @Failure 400 {object} errResponse
 // @Failure 500 {object} errResponse

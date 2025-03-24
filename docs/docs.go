@@ -36,7 +36,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.PaymentOperation"
+                            "$ref": "#/definitions/swagmodel.PaymentOperation"
                         }
                     }
                 ],
@@ -114,26 +114,6 @@ const docTemplate = `{
                 }
             }
         },
-        "model.PaymentOperation": {
-            "type": "object",
-            "properties": {
-                "amount": {
-                    "type": "integer"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "operationType": {
-                    "$ref": "#/definitions/model.PaymentOperationType"
-                },
-                "walletId": {
-                    "type": "string"
-                }
-            }
-        },
         "model.PaymentOperationType": {
             "type": "string",
             "enum": [
@@ -144,6 +124,20 @@ const docTemplate = `{
                 "Deposit",
                 "Withdraw"
             ]
+        },
+        "swagmodel.PaymentOperation": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                },
+                "operationType": {
+                    "$ref": "#/definitions/model.PaymentOperationType"
+                },
+                "walletId": {
+                    "type": "string"
+                }
+            }
         }
     }
 }`

@@ -5,19 +5,6 @@ definitions:
       error:
         type: string
     type: object
-  model.PaymentOperation:
-    properties:
-      amount:
-        type: integer
-      createdAt:
-        type: string
-      id:
-        type: integer
-      operationType:
-        $ref: '#/definitions/model.PaymentOperationType'
-      walletId:
-        type: string
-    type: object
   model.PaymentOperationType:
     enum:
     - deposit
@@ -26,6 +13,15 @@ definitions:
     x-enum-varnames:
     - Deposit
     - Withdraw
+  swagmodel.PaymentOperation:
+    properties:
+      amount:
+        type: integer
+      operationType:
+        $ref: '#/definitions/model.PaymentOperationType'
+      walletId:
+        type: string
+    type: object
 host: localhost:7540
 info:
   contact:
@@ -47,7 +43,7 @@ paths:
         name: Body
         required: true
         schema:
-          $ref: '#/definitions/model.PaymentOperation'
+          $ref: '#/definitions/swagmodel.PaymentOperation'
       responses:
         "201":
           description: Created
