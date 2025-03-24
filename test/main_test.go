@@ -61,6 +61,13 @@ func initialize() error {
 	return nil
 }
 
+func truncateTable(db *gorm.DB) {
+	err := db.Exec(`TRUNCATE payment_operations`).Error
+	if err != nil {
+		log.Fatalf("error truncate table: %+v", err)
+	}
+}
+
 func closeDB() error {
 	dbInstance, err := walletTest.db.DB()
 	if err != nil {

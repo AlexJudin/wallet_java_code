@@ -8,6 +8,8 @@ import (
 )
 
 func TestGetWalletBalanceByUUIDWhenOk(t *testing.T) {
+	truncateTable(walletTest.db)
+
 	req := httptest.NewRequest("GET", "/api/v1/wallets/?WALLET_UUID=ec82ea03-2b53-4258-ba87-a7efae979c43", nil)
 
 	responseRecorder := httptest.NewRecorder()
@@ -20,6 +22,8 @@ func TestGetWalletBalanceByUUIDWhenOk(t *testing.T) {
 }
 
 func TestGetWalletBalanceByUUIDWhenWalletUUIDIsEmpty(t *testing.T) {
+	truncateTable(walletTest.db)
+
 	req := httptest.NewRequest("GET", "/api/v1/wallets/?WALLET_UUID=", nil)
 
 	responseRecorder := httptest.NewRecorder()
@@ -37,6 +41,8 @@ func TestGetWalletBalanceByUUIDWhenWalletUUIDIsEmpty(t *testing.T) {
 }
 
 func TestGetWalletBalanceByUUIDWhenMissingWalletUUID(t *testing.T) {
+	truncateTable(walletTest.db)
+
 	req := httptest.NewRequest("GET", "/api/v1/wallets/", nil)
 
 	responseRecorder := httptest.NewRecorder()
@@ -54,6 +60,8 @@ func TestGetWalletBalanceByUUIDWhenMissingWalletUUID(t *testing.T) {
 }
 
 func TestCreateOperationWhenOk(t *testing.T) {
+	truncateTable(walletTest.db)
+
 	bodyJSON := `{"walletId":"ec82ea03-2b53-4258-ba87-a7efae979c43", "operationType":"deposit", "amount": 4000}`
 	req := httptest.NewRequest("POST", "/api/v1/wallet", strings.NewReader(bodyJSON))
 
@@ -67,6 +75,8 @@ func TestCreateOperationWhenOk(t *testing.T) {
 }
 
 func TestCreateOperationWhenBodyIsEmpty(t *testing.T) {
+	truncateTable(walletTest.db)
+
 	req := httptest.NewRequest("POST", "/api/v1/wallet", nil)
 
 	responseRecorder := httptest.NewRecorder()
@@ -84,6 +94,8 @@ func TestCreateOperationWhenBodyIsEmpty(t *testing.T) {
 }
 
 func TestCreateOperationWhenUncorrectBody(t *testing.T) {
+	truncateTable(walletTest.db)
+
 	bodyJSON := `{"walletId":"ec82ea03-2b53-4258-ba87-a7efae979c43", "operationType":1, "amount": 4000}`
 	req := httptest.NewRequest("POST", "/api/v1/wallet", strings.NewReader(bodyJSON))
 
@@ -102,6 +114,8 @@ func TestCreateOperationWhenUncorrectBody(t *testing.T) {
 }
 
 func TestCreateOperationWhenInsufficientFunds(t *testing.T) {
+	truncateTable(walletTest.db)
+
 	bodyJSON := `{"walletId":"ec82ea03-2b53-4258-ba87-a7efae979c43", "operationType":"withdraw", "amount": 4000}`
 	req := httptest.NewRequest("POST", "/api/v1/wallet", strings.NewReader(bodyJSON))
 
