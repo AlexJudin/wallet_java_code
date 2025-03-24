@@ -10,11 +10,15 @@ import (
 func TestGetWalletBalanceByUUIDWhenOk(t *testing.T) {
 	truncateTable(walletTest.db)
 
-	walletTest.db.Exec(`INSERT INTO payment_operations
+	err := walletTest.db.Exec(`INSERT INTO payment_operations
 	(wallet_id,  operation_type, amount) VALUES
 	( 'ec82ea03-2b53-4258-ba87-a7efae979c43', 'deposit', 5000),
 	( 'ec82ea03-2b53-4258-ba87-a7efae979c43', 'withdraw', -1000),
-	( '7a6f774f-2f85-4e61-8830-833aaec60f14', 'deposit', 3500);`)
+	( '7a6f774f-2f85-4e61-8830-833aaec60f14', 'deposit', 3500);`).Error
+	if err != nil {
+		t.Error(err)
+		return
+	}
 
 	req := httptest.NewRequest("GET", "/api/v1/wallets/?WALLET_UUID=ec82ea03-2b53-4258-ba87-a7efae979c43", nil)
 
