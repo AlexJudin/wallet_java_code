@@ -36,7 +36,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/swagmodel.PaymentOperation"
+                            "$ref": "#/definitions/model.PaymentOperation"
                         }
                     }
                 ],
@@ -114,18 +114,7 @@ const docTemplate = `{
                 }
             }
         },
-        "model.PaymentOperationType": {
-            "type": "string",
-            "enum": [
-                "deposit",
-                "withdraw"
-            ],
-            "x-enum-varnames": [
-                "Deposit",
-                "Withdraw"
-            ]
-        },
-        "swagmodel.PaymentOperation": {
+        "model.PaymentOperation": {
             "type": "object",
             "properties": {
                 "amount": {
@@ -138,6 +127,17 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "model.PaymentOperationType": {
+            "type": "string",
+            "enum": [
+                "deposit",
+                "withdraw"
+            ],
+            "x-enum-varnames": [
+                "Deposit",
+                "Withdraw"
+            ]
         }
     }
 }`
