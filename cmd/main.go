@@ -1,8 +1,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -53,8 +57,36 @@ func main() {
 	log.Info("Start http server")
 
 	serverAddress := fmt.Sprintf(":%s", cfg.Port)
-	log.Infoln("Listening on " + serverAddress)
-	if err = http.ListenAndServe(serverAddress, r); err != nil {
-		log.Panicf("Start server error: %+v", err.Error())
+	serverErr := make(chan error)
+
+	httpServer := &http.Server{
+		Addr:    serverAddress,
+		Handler: r,
+	}
+
+	go func() {
+		log.Infoln("Listening on " + serverAddress)
+		if err = httpServer.ListenAndServe(); err != nil {
+			serverErr <- err
+		}
+		close(serverErr)
+	}()
+
+	stop := make(chan os.Signal)
+	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
+
+	select {
+	case <-stop:
+		log.Info("Stop signal received. Shutting down server...")
+
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		if err = httpServer.Shutdown(ctx); err != nil {
+			log.Errorf("error terminating server: %+v", err)
+		}
+		log.Info("The server has been stopped successfully")
+	case err = <-serverErr:
+		log.Errorf("Server error: %+v", err)
 	}
 }
