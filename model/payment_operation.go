@@ -23,6 +23,6 @@ func (p PaymentOperation) OperationTypeIsEmpty() bool {
 	return p.OperationType == ""
 }
 
-func (p PaymentOperation) AmountIsNegative() bool {
+func (p PaymentOperation) AmountIs() bool {
 	return p.Amount < 0
 }
