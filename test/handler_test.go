@@ -128,6 +128,66 @@ func TestCreateOperationWhenUncorrectBody(t *testing.T) {
 	}
 }
 
+func TestCreateOperationWhenOperationTypeIsEmpty(t *testing.T) {
+	truncateTable(walletTest.db)
+
+	bodyJSON := `{"walletId":"ec82ea03-2b53-4258-ba87-a7efae979c43", "amount": 4000}`
+	req := httptest.NewRequest("POST", "/api/v1/wallet", strings.NewReader(bodyJSON))
+
+	responseRecorder := httptest.NewRecorder()
+	handler := http.HandlerFunc(walletTest.handler.CreateOperation)
+	handler.ServeHTTP(responseRecorder, req)
+
+	if status := responseRecorder.Code; status != http.StatusBadRequest {
+		t.Errorf("expected status code: %d, got %d", http.StatusBadRequest, status)
+	}
+
+	expected := `{"error":"В данных о платежной операции переданы некорректные поля [operationType]."}`
+	if responseRecorder.Body.String() != expected {
+		t.Errorf("expected body: %s, got %s", expected, responseRecorder.Body.String())
+	}
+}
+
+func TestCreateOperationWhenAmountIsNegative(t *testing.T) {
+	truncateTable(walletTest.db)
+
+	bodyJSON := `{"walletId":"ec82ea03-2b53-4258-ba87-a7efae979c43", "operationType":"deposit", "amount": -4000}`
+	req := httptest.NewRequest("POST", "/api/v1/wallet", strings.NewReader(bodyJSON))
+
+	responseRecorder := httptest.NewRecorder()
+	handler := http.HandlerFunc(walletTest.handler.CreateOperation)
+	handler.ServeHTTP(responseRecorder, req)
+
+	if status := responseRecorder.Code; status != http.StatusBadRequest {
+		t.Errorf("expected status code: %d, got %d", http.StatusBadRequest, status)
+	}
+
+	expected := `{"error":"В данных о платежной операции переданы некорректные поля [amount]."}`
+	if responseRecorder.Body.String() != expected {
+		t.Errorf("expected body: %s, got %s", expected, responseRecorder.Body.String())
+	}
+}
+
+func TestCreateOperationWhenOperationTypeIsEmptyAndAmountIsNegative(t *testing.T) {
+	truncateTable(walletTest.db)
+
+	bodyJSON := `{"walletId":"ec82ea03-2b53-4258-ba87-a7efae979c43", "amount": -4000}`
+	req := httptest.NewRequest("POST", "/api/v1/wallet", strings.NewReader(bodyJSON))
+
+	responseRecorder := httptest.NewRecorder()
+	handler := http.HandlerFunc(walletTest.handler.CreateOperation)
+	handler.ServeHTTP(responseRecorder, req)
+
+	if status := responseRecorder.Code; status != http.StatusBadRequest {
+		t.Errorf("expected status code: %d, got %d", http.StatusBadRequest, status)
+	}
+
+	expected := `{"error":"В данных о платежной операции переданы некорректные поля [operationType, amount]."}`
+	if responseRecorder.Body.String() != expected {
+		t.Errorf("expected body: %s, got %s", expected, responseRecorder.Body.String())
+	}
+}
+
 func TestCreateOperationWhenInsufficientFunds(t *testing.T) {
 	truncateTable(walletTest.db)
 

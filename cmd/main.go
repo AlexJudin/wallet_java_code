@@ -65,7 +65,7 @@ func main() {
 	}
 
 	go func() {
-		log.Infoln("Listening on " + serverAddress)
+		log.Infof("Listening on %s", serverAddress)
 		if err = httpServer.ListenAndServe(); err != nil {
 			serverErr <- err
 		}

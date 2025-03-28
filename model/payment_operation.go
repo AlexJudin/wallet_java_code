@@ -18,3 +18,11 @@ type PaymentOperation struct {
 	OperationType PaymentOperationType `json:"operationType"`
 	Amount        int64                `json:"amount"`
 }
+
+func (p PaymentOperation) OperationTypeIsEmpty() bool {
+	return p.OperationType == ""
+}
+
+func (p PaymentOperation) AmountIsNegative() bool {
+	return p.Amount < 0
+}

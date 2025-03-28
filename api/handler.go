@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 
@@ -55,6 +56,14 @@ func (h *WalletHandler) CreateOperation(w http.ResponseWriter, r *http.Request) 
 	if err = json.Unmarshal(buf.Bytes(), &paymentOperation); err != nil {
 		log.Errorf("create payment operation: %+v", err)
 		messageError = "Не удалось прочитать данные о платежной операции."
+
+		returnErr(http.StatusBadRequest, messageError, w)
+		return
+	}
+
+	if nameFields, err := checkCreateOperationRequest(paymentOperation); err != nil {
+		log.Errorf("create payment operation: %+v", err)
+		messageError = fmt.Sprintf("В данных о платежной операции переданы некорректные поля [%s].", nameFields)
 
 		returnErr(http.StatusBadRequest, messageError, w)
 		return
@@ -154,4 +163,25 @@ func returnErr(status int, messageError string, w http.ResponseWriter) {
 	if err != nil {
 		log.Errorf("get wallet balance by UUID error: %+v", err)
 	}
+}
+
+func checkCreateOperationRequest(req model.PaymentOperation) (string, error) {
+	errorFields := make([]string, 0)
+
+	if req.OperationTypeIsEmpty() {
+		errorFields = append(errorFields, "operationType")
+	}
+
+	if req.AmountIsNegative() {
+		errorFields = append(errorFields, "amount")
+	}
+
+	if len(errorFields) == 0 {
+		return "", nil
+	}
+
+	errorFieldsString := strings.Join(errorFields, ", ")
+	errorText := fmt.Sprintf("invalid parameters [%s]", errorFieldsString)
+
+	return errorFieldsString, errors.New(errorText)
 }
