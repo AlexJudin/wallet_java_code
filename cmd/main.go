@@ -50,7 +50,7 @@ func main() {
 	walletHandler := api.NewWalletHandler(walletUC)
 
 	r := chi.NewRouter()
-	r.Use(httprate.LimitByIP(1000, time.Second))
+	r.Use(httprate.LimitByIP(5000, time.Second))
 	r.Post("/api/v1/wallet", walletHandler.CreateOperation)
 	r.Get("/api/v1/wallets/", walletHandler.GetWalletBalanceByUUID)
 
