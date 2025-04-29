@@ -1,8 +1,9 @@
 package usecases
 
 import (
-	"github.com/AlexJudin/wallet_java_code/model"
-	"github.com/AlexJudin/wallet_java_code/repository"
+	"github.com/AlexJudin/wallet_java_code/internal/custom_error"
+	"github.com/AlexJudin/wallet_java_code/internal/model"
+	"github.com/AlexJudin/wallet_java_code/internal/repository"
 )
 
 var _ Wallet = (*WalletUsecase)(nil)
@@ -23,7 +24,7 @@ func (t *WalletUsecase) CreateOperation(paymentOperation *model.PaymentOperation
 		}
 
 		if balance < paymentOperation.Amount {
-			return model.InsufficientFundsErr
+			return custom_error.InsufficientFundsErr
 		}
 
 		paymentOperation.Amount = -paymentOperation.Amount

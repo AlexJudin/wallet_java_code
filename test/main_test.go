@@ -9,9 +9,9 @@ import (
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 
-	"github.com/AlexJudin/wallet_java_code/api"
-	"github.com/AlexJudin/wallet_java_code/repository"
-	"github.com/AlexJudin/wallet_java_code/usecases"
+	"github.com/AlexJudin/wallet_java_code/internal/api"
+	"github.com/AlexJudin/wallet_java_code/internal/repository"
+	"github.com/AlexJudin/wallet_java_code/internal/usecases"
 )
 
 var (

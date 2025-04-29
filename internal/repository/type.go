@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github.com/AlexJudin/wallet_java_code/model"
+	"github.com/AlexJudin/wallet_java_code/internal/model"
 )
 
 type Wallet interface {

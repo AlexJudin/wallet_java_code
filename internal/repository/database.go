@@ -5,7 +5,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	"github.com/AlexJudin/wallet_java_code/model"
+	"github.com/AlexJudin/wallet_java_code/internal/model"
 )
 
 func ConnectDB(connStr string) (*gorm.DB, error) {

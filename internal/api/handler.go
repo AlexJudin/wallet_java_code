@@ -10,8 +10,9 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/AlexJudin/wallet_java_code/model"
-	"github.com/AlexJudin/wallet_java_code/usecases"
+	"github.com/AlexJudin/wallet_java_code/internal/custom_error"
+	"github.com/AlexJudin/wallet_java_code/internal/model"
+	"github.com/AlexJudin/wallet_java_code/internal/usecases"
 )
 
 var messageError string
@@ -71,7 +72,7 @@ func (h *WalletHandler) CreateOperation(w http.ResponseWriter, r *http.Request) 
 
 	err = h.uc.CreateOperation(&paymentOperation)
 	switch {
-	case errors.Is(err, model.InsufficientFundsErr):
+	case errors.Is(err, custom_error.InsufficientFundsErr):
 		log.Errorf("wallet [%s] error: %+v", err)
 		messageError = "Недостаточно средств."
 

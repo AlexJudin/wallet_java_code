@@ -13,10 +13,10 @@ import (
 	"github.com/go-chi/httprate"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/AlexJudin/wallet_java_code/api"
 	"github.com/AlexJudin/wallet_java_code/config"
-	"github.com/AlexJudin/wallet_java_code/repository"
-	"github.com/AlexJudin/wallet_java_code/usecases"
+	"github.com/AlexJudin/wallet_java_code/internal/api"
+	"github.com/AlexJudin/wallet_java_code/internal/repository"
+	"github.com/AlexJudin/wallet_java_code/internal/usecases"
 )
 
 // @title Пользовательская документация API
@@ -26,7 +26,7 @@ import (
 // @contact.email spdante@mail.ru
 // @version 1.0.0
 // @host localhost:7540
-// @BasePath /
+// @BasePath /api/v1
 func main() {
 	// init config
 	cfg, err := config.New()
