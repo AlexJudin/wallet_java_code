@@ -57,12 +57,12 @@ func main() {
 	r := chi.NewRouter()
 
 	r.Post("/register", registerHandler.RegisterUser)
-	r.Post("/auth", authHandler.AuthorizationUser)
-	r.Post("/refresh-token", refreshTokenHandler.RefreshToken)
+	//r.Post("/auth", authHandler.AuthorizationUser)
+	//r.Post("/refresh-token", refreshTokenHandler.RefreshToken)
 
 	r.Group(func(r chi.Router) {
 		r.Use(httprate.LimitByIP(5000, time.Second))
-		r.Use(authMiddleware.CheckToken)
+		//r.Use(authMiddleware.CheckToken)
 		r.Post("/api/v1/wallet", walletHandler.CreateOperation)
 		r.Get("/api/v1/wallets/", walletHandler.GetWalletBalanceByUUID)
 	})

@@ -21,5 +21,5 @@ func (r *RegisterRepo) SaveUser(login string, password string) error {
 }
 
 func (r *RegisterRepo) GetUserByLogin(login string) (model.User, error) {
-
+	return model.User{}, nil
 }
