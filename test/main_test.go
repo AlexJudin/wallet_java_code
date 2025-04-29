@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+	"github.com/AlexJudin/wallet_java_code/internal/api/controller/wallet"
 	"os"
 	"testing"
 
@@ -9,7 +10,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 
-	"github.com/AlexJudin/wallet_java_code/internal/api"
 	"github.com/AlexJudin/wallet_java_code/internal/repository"
 	"github.com/AlexJudin/wallet_java_code/internal/usecases"
 )
@@ -20,7 +20,7 @@ var (
 
 type WalletTest struct {
 	db      *gorm.DB
-	handler api.WalletHandler
+	handler wallet.WalletHandler
 }
 
 func TestMain(m *testing.M) {
@@ -56,7 +56,7 @@ func initialize() error {
 
 	// init usecases
 	walletUC := usecases.NewWalletUsecase(repo)
-	walletTest.handler = api.NewWalletHandler(walletUC)
+	walletTest.handler = wallet.NewWalletHandler(walletUC)
 
 	return nil
 }

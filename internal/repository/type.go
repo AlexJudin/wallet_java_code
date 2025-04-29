@@ -8,3 +8,8 @@ type Wallet interface {
 	CreateOperation(paymentOperation *model.PaymentOperation) error
 	GetWalletBalanceByUUID(walletUUID string) (int64, error)
 }
+
+type Register interface {
+	GetUserByLogin(login string) (model.User, error)
+	SaveUser(login string, password string) error
+}

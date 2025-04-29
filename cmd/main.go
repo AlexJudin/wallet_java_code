@@ -14,7 +14,8 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/AlexJudin/wallet_java_code/config"
-	"github.com/AlexJudin/wallet_java_code/internal/api"
+	"github.com/AlexJudin/wallet_java_code/internal/api/controller/register"
+	"github.com/AlexJudin/wallet_java_code/internal/api/controller/wallet"
 	"github.com/AlexJudin/wallet_java_code/internal/repository"
 	"github.com/AlexJudin/wallet_java_code/internal/usecases"
 )
@@ -43,16 +44,28 @@ func main() {
 	}
 
 	// init repository
-	repo := repository.NewWalletRepo(db)
+	repoWallet := repository.NewWalletRepo(db)
+	repoRegister := repository.NewRegisterRepo(db)
 
 	// init usecases
-	walletUC := usecases.NewWalletUsecase(repo)
-	walletHandler := api.NewWalletHandler(walletUC)
+	walletUC := usecases.NewWalletUsecase(repoWallet)
+	walletHandler := wallet.NewWalletHandler(walletUC)
+
+	registerUC := usecases.NewRegisterUsecase(repoRegister)
+	registerHandler := register.NewRegisterHandler(registerUC)
 
 	r := chi.NewRouter()
-	r.Use(httprate.LimitByIP(5000, time.Second))
-	r.Post("/api/v1/wallet", walletHandler.CreateOperation)
-	r.Get("/api/v1/wallets/", walletHandler.GetWalletBalanceByUUID)
+
+	r.Post("/register", registerHandler.RegisterUser)
+	r.Post("/auth", authHandler.AuthorizationUser)
+	r.Post("/refresh-token", refreshTokenHandler.RefreshToken)
+
+	r.Group(func(r chi.Router) {
+		r.Use(httprate.LimitByIP(5000, time.Second))
+		r.Use(authMiddleware.CheckToken)
+		r.Post("/api/v1/wallet", walletHandler.CreateOperation)
+		r.Get("/api/v1/wallets/", walletHandler.GetWalletBalanceByUUID)
+	})
 
 	log.Info("Start http server")
 

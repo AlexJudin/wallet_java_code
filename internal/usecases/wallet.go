@@ -24,7 +24,7 @@ func (t *WalletUsecase) CreateOperation(paymentOperation *model.PaymentOperation
 		}
 
 		if balance < paymentOperation.Amount {
-			return custom_error.InsufficientFundsErr
+			return custom_error.ErrInsufficientFunds
 		}
 
 		paymentOperation.Amount = -paymentOperation.Amount

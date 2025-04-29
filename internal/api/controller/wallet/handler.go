@@ -1,4 +1,4 @@
-package api
+package wallet
 
 import (
 	"bytes"
@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 
@@ -40,6 +41,15 @@ type errResponse struct {
 // @Failure 500 {object} errResponse
 // @Router /api/v1/wallet [post]
 func (h *WalletHandler) CreateOperation(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	select {
+	case <-time.After(1 * time.Second):
+		log.Info("create payment operation processed")
+	case <-ctx.Done():
+		err := ctx.Err()
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
 	var (
 		paymentOperation model.PaymentOperation
 		buf              bytes.Buffer
@@ -47,7 +57,7 @@ func (h *WalletHandler) CreateOperation(w http.ResponseWriter, r *http.Request) 
 
 	_, err := buf.ReadFrom(r.Body)
 	if err != nil {
-		log.Errorf("create payment operation: %+v", err)
+		log.Errorf("create payment operation error: %+v", err)
 		messageError = "Переданы некорректные данные о платежной операции."
 
 		returnErr(http.StatusBadRequest, messageError, w)
@@ -55,7 +65,7 @@ func (h *WalletHandler) CreateOperation(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if err = json.Unmarshal(buf.Bytes(), &paymentOperation); err != nil {
-		log.Errorf("create payment operation: %+v", err)
+		log.Errorf("create payment operation error: %+v", err)
 		messageError = "Не удалось прочитать данные о платежной операции."
 
 		returnErr(http.StatusBadRequest, messageError, w)
@@ -63,7 +73,7 @@ func (h *WalletHandler) CreateOperation(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if nameFields, err := checkCreateOperationRequest(paymentOperation); err != nil {
-		log.Errorf("create payment operation: %+v", err)
+		log.Errorf("create payment operation error: %+v", err)
 		messageError = fmt.Sprintf("В данных о платежной операции переданы некорректные поля [%s].", nameFields)
 
 		returnErr(http.StatusBadRequest, messageError, w)
@@ -72,7 +82,7 @@ func (h *WalletHandler) CreateOperation(w http.ResponseWriter, r *http.Request) 
 
 	err = h.uc.CreateOperation(&paymentOperation)
 	switch {
-	case errors.Is(err, custom_error.InsufficientFundsErr):
+	case errors.Is(err, custom_error.ErrInsufficientFunds):
 		log.Errorf("wallet [%s] error: %+v", err)
 		messageError = "Недостаточно средств."
 
@@ -104,6 +114,15 @@ func (h *WalletHandler) CreateOperation(w http.ResponseWriter, r *http.Request) 
 // @Failure 500 {object} errResponse
 // @Router /api/v1/wallets/ [get]
 func (h *WalletHandler) GetWalletBalanceByUUID(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	select {
+	case <-time.After(1 * time.Second):
+		log.Info("get wallet balance by UUID processed")
+	case <-ctx.Done():
+		err := ctx.Err()
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
 	walletUUID := r.FormValue("WALLET_UUID")
 	if walletUUID == "" {
 		err := fmt.Errorf("wallet UUID is empty")

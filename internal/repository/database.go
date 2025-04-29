@@ -19,7 +19,10 @@ func ConnectDB(connStr string) (*gorm.DB, error) {
 	log.Info("Connected to database")
 
 	log.Info("Running migration")
-	db.AutoMigrate(&model.PaymentOperation{})
+	db.AutoMigrate(
+		&model.PaymentOperation{},
+		&model.User{},
+	)
 
 	return db, nil
 }
