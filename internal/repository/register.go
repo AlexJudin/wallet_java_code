@@ -3,6 +3,8 @@ package repository
 import (
 	"gorm.io/gorm"
 
+	log "github.com/sirupsen/logrus"
+
 	"github.com/AlexJudin/wallet_java_code/internal/model"
 )
 
@@ -16,10 +18,30 @@ func NewRegisterRepo(db *gorm.DB) *RegisterRepo {
 	return &RegisterRepo{Db: db}
 }
 
-func (r *RegisterRepo) SaveUser(login string, password string) error {
+func (r *RegisterRepo) SaveUser(user model.User) error {
+	log.Infof("start saving user with login [%s]", user.Login)
+
+	err := r.Db.Create(&user).Error
+	if err != nil {
+		log.Debugf("error create user: %+v", err)
+		return err
+	}
+
 	return nil
 }
 
 func (r *RegisterRepo) GetUserByLogin(login string) (model.User, error) {
-	return model.User{}, nil
+	log.Infof("start getting user by login [%s]", login)
+
+	var user model.User
+
+	err := r.Db.Model(user).
+		Where("login = ?", login).
+		Find(&user).Error
+	if err != nil {
+		log.Debugf("error getting user by login [%s]: %+v", login, err)
+		return user, err
+	}
+
+	return user, nil
 }

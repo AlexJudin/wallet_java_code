@@ -11,5 +11,5 @@ type Wallet interface {
 
 type Register interface {
 	GetUserByLogin(login string) (model.User, error)
-	SaveUser(login string, password string) error
+	SaveUser(user model.User) error
 }

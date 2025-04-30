@@ -9,3 +9,7 @@ type User struct {
 	Password  string    `gorm:"-" json:"password"`
 	Hash      string    `json:"-"`
 }
+
+func (u User) IsAlreadyExist() bool {
+	return u.ID != 0
+}

@@ -1,0 +1,38 @@
+package controller
+
+import (
+	"time"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/httprate"
+	"gorm.io/gorm"
+
+	"github.com/AlexJudin/wallet_java_code/internal/api/controller/register"
+	"github.com/AlexJudin/wallet_java_code/internal/api/controller/wallet"
+	"github.com/AlexJudin/wallet_java_code/internal/repository"
+	"github.com/AlexJudin/wallet_java_code/internal/usecases"
+)
+
+func AddRoutes(db *gorm.DB, r *chi.Mux) {
+	// init repository
+	repoWallet := repository.NewWalletRepo(db)
+	repoRegister := repository.NewRegisterRepo(db)
+
+	// init usecases
+	walletUC := usecases.NewWalletUsecase(repoWallet)
+	walletHandler := wallet.NewWalletHandler(walletUC)
+
+	registerUC := usecases.NewRegisterUsecase(repoRegister)
+	registerHandler := register.NewRegisterHandler(registerUC)
+
+	r.Post("/register", registerHandler.RegisterUser)
+	//r.Post("/auth", authHandler.AuthorizationUser)
+	//r.Post("/refresh-token", refreshTokenHandler.RefreshToken)
+
+	r.Group(func(r chi.Router) {
+		r.Use(httprate.LimitByIP(5000, time.Second))
+		//r.Use(authMiddleware.CheckToken)
+		r.Post("/api/v1/wallet", walletHandler.CreateOperation)
+		r.Get("/api/v1/wallets/", walletHandler.GetWalletBalanceByUUID)
+	})
+}
