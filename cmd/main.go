@@ -24,7 +24,7 @@ import (
 // @contact.email spdante@mail.ru
 // @version 1.0.0
 // @host localhost:7540
-// @BasePath /api/v1
+// @BasePath /
 func main() {
 	// init config
 	cfg, err := config.New()
