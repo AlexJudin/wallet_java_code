@@ -26,10 +26,6 @@ func NewWalletHandler(uc usecases.Wallet) WalletHandler {
 	return WalletHandler{uc: uc}
 }
 
-type errResponse struct {
-	Error string `json:"error"`
-}
-
 // CreateOperation ... Добавить новую платежную операцию
 // @Summary Добавить новую платежную операцию
 // @Description Добавить новую платежную операцию по кошельку
@@ -60,7 +56,7 @@ func (h *WalletHandler) CreateOperation(w http.ResponseWriter, r *http.Request) 
 		log.Errorf("create payment operation error: %+v", err)
 		messageError = "Переданы некорректные данные о платежной операции."
 
-		returnErr(http.StatusBadRequest, messageError, w)
+		custom_error.ReturnHTTPErr(http.StatusBadRequest, messageError, w)
 		return
 	}
 
@@ -68,7 +64,7 @@ func (h *WalletHandler) CreateOperation(w http.ResponseWriter, r *http.Request) 
 		log.Errorf("create payment operation error: %+v", err)
 		messageError = "Не удалось прочитать данные о платежной операции."
 
-		returnErr(http.StatusBadRequest, messageError, w)
+		custom_error.ReturnHTTPErr(http.StatusBadRequest, messageError, w)
 		return
 	}
 
@@ -76,7 +72,7 @@ func (h *WalletHandler) CreateOperation(w http.ResponseWriter, r *http.Request) 
 		log.Errorf("create payment operation error: %+v", err)
 		messageError = fmt.Sprintf("В данных о платежной операции переданы некорректные поля [%s].", nameFields)
 
-		returnErr(http.StatusBadRequest, messageError, w)
+		custom_error.ReturnHTTPErr(http.StatusBadRequest, messageError, w)
 		return
 	}
 
@@ -86,7 +82,7 @@ func (h *WalletHandler) CreateOperation(w http.ResponseWriter, r *http.Request) 
 		log.Errorf("wallet [%s] error: %+v", err)
 		messageError = "Недостаточно средств."
 
-		returnErr(http.StatusOK, messageError, w)
+		custom_error.ReturnHTTPErr(http.StatusOK, messageError, w)
 		return
 	case err != nil:
 		log.Errorf("create payment operation: error create payment operation for wallet [%s], operation type [%s], amount [%d]: service is not allowed",
@@ -95,7 +91,7 @@ func (h *WalletHandler) CreateOperation(w http.ResponseWriter, r *http.Request) 
 			paymentOperation.Amount)
 		messageError = "Ошибка сервера, не удалось сохранить данные о платежной операции. Попробуйте позже или обратитесь в тех. поддержку."
 
-		returnErr(http.StatusInternalServerError, messageError, w)
+		custom_error.ReturnHTTPErr(http.StatusInternalServerError, messageError, w)
 		return
 	}
 
@@ -129,7 +125,7 @@ func (h *WalletHandler) GetWalletBalanceByUUID(w http.ResponseWriter, r *http.Re
 		log.Errorf("get wallet balance by UUID error: %+v", err)
 		messageError = "Не передан идентификатор кошелька, получение баланса невозможно."
 
-		returnErr(http.StatusBadRequest, messageError, w)
+		custom_error.ReturnHTTPErr(http.StatusBadRequest, messageError, w)
 		return
 	}
 
@@ -138,7 +134,7 @@ func (h *WalletHandler) GetWalletBalanceByUUID(w http.ResponseWriter, r *http.Re
 		log.Error("get wallet balance by UUID error: service is not allowed")
 		messageError = "Ошибка сервера, не удалось получить баланс. Попробуйте позже или обратитесь в тех. поддержку."
 
-		returnErr(http.StatusInternalServerError, messageError, w)
+		custom_error.ReturnHTTPErr(http.StatusInternalServerError, messageError, w)
 		return
 	}
 
@@ -151,7 +147,7 @@ func (h *WalletHandler) GetWalletBalanceByUUID(w http.ResponseWriter, r *http.Re
 		log.Errorf("get wallet balance by UUID error: %+v", err)
 		messageError = "Ошибка сервера. Попробуйте позже или обратитесь в тех. поддержку."
 
-		returnErr(http.StatusInternalServerError, messageError, w)
+		custom_error.ReturnHTTPErr(http.StatusInternalServerError, messageError, w)
 		return
 	}
 
@@ -162,27 +158,7 @@ func (h *WalletHandler) GetWalletBalanceByUUID(w http.ResponseWriter, r *http.Re
 		log.Errorf("get wallet balance by UUID error: %+v", err)
 		messageError = "Сервер недоступен. Попробуйте позже или обратитесь в тех. поддержку."
 
-		returnErr(http.StatusInternalServerError, messageError, w)
-	}
-}
-
-func returnErr(status int, messageError string, w http.ResponseWriter) {
-	message := errResponse{
-		Error: messageError,
-	}
-
-	messageJson, err := json.Marshal(message)
-	if err != nil {
-		status = http.StatusInternalServerError
-		messageJson = []byte("{\"error\":\"" + err.Error() + "\"}")
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	_, err = w.Write(messageJson)
-	if err != nil {
-		w.WriteHeader(http.StatusServiceUnavailable)
-		log.Errorf("get wallet balance by UUID error: %+v", err)
+		custom_error.ReturnHTTPErr(http.StatusInternalServerError, messageError, w)
 	}
 }
 
