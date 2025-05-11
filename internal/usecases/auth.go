@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"github.com/AlexJudin/wallet_java_code/internal/custom_error"
+	"github.com/AlexJudin/wallet_java_code/internal/model"
 	"github.com/AlexJudin/wallet_java_code/internal/repository"
 	"github.com/AlexJudin/wallet_java_code/internal/service"
 )
@@ -35,5 +36,5 @@ func (u *AuthUsecase) AuthorizationUser(login string, password string) (model.To
 		return model.Tokens{}, custom_error.ErrIncorrectPassword
 	}
 
-	return nil
+	return u.ServiceAuth.GenerateTokens(login)
 }

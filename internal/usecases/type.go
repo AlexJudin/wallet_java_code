@@ -14,5 +14,5 @@ type Register interface {
 }
 
 type Authorization interface {
-	AuthorizationUser(login string, password string) error
+	AuthorizationUser(login string, password string) (model.Tokens, error)
 }
