@@ -12,3 +12,7 @@ type Wallet interface {
 type Register interface {
 	RegisterUser(login string, password string) error
 }
+
+type Authorization interface {
+	AuthorizationUser(login string, password string) error
+}

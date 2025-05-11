@@ -41,7 +41,7 @@ func main() {
 	}
 
 	r := chi.NewRouter()
-	controller.AddRoutes(db, r)
+	controller.AddRoutes(cfg, db, r)
 
 	startHTTPServer(cfg, r)
 }

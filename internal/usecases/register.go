@@ -1,22 +1,24 @@
 package usecases
 
 import (
-	"crypto/sha512"
-	"encoding/hex"
-
 	"github.com/AlexJudin/wallet_java_code/internal/custom_error"
 	"github.com/AlexJudin/wallet_java_code/internal/model"
 	"github.com/AlexJudin/wallet_java_code/internal/repository"
+	"github.com/AlexJudin/wallet_java_code/internal/service"
 )
 
 var _ Register = (*RegisterUsecase)(nil)
 
 type RegisterUsecase struct {
-	DB repository.Register
+	DB          repository.User
+	ServiceAuth service.AuthService
 }
 
-func NewRegisterUsecase(db repository.Register) *RegisterUsecase {
-	return &RegisterUsecase{DB: db}
+func NewRegisterUsecase(db repository.User, serviceAuth service.AuthService) *RegisterUsecase {
+	return &RegisterUsecase{
+		DB:          db,
+		ServiceAuth: serviceAuth,
+	}
 }
 
 func (u *RegisterUsecase) RegisterUser(login string, password string) error {
@@ -31,7 +33,7 @@ func (u *RegisterUsecase) RegisterUser(login string, password string) error {
 
 	newUser := model.User{
 		Login: login,
-		Hash:  generateHashPassword(password),
+		Hash:  u.ServiceAuth.GenerateHashPassword(password),
 	}
 
 	err = u.DB.SaveUser(newUser)
@@ -40,16 +42,4 @@ func (u *RegisterUsecase) RegisterUser(login string, password string) error {
 	}
 
 	return nil
-}
-
-func generateHashPassword(password string) string {
-	passwordBytes := []byte(password)
-	sha512Hasher := sha512.New()
-
-	sha512Hasher.Write(passwordBytes)
-
-	hashedPasswordBytes := sha512Hasher.Sum(nil)
-	hashedPasswordHex := hex.EncodeToString(hashedPasswordBytes)
-
-	return hashedPasswordHex
 }

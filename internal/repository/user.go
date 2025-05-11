@@ -8,17 +8,17 @@ import (
 	"github.com/AlexJudin/wallet_java_code/internal/model"
 )
 
-var _ Register = (*RegisterRepo)(nil)
+var _ User = (*UserRepo)(nil)
 
-type RegisterRepo struct {
+type UserRepo struct {
 	Db *gorm.DB
 }
 
-func NewRegisterRepo(db *gorm.DB) *RegisterRepo {
-	return &RegisterRepo{Db: db}
+func NewUserRepo(db *gorm.DB) *UserRepo {
+	return &UserRepo{Db: db}
 }
 
-func (r *RegisterRepo) SaveUser(user model.User) error {
+func (r *UserRepo) SaveUser(user model.User) error {
 	log.Infof("start saving user with login [%s]", user.Login)
 
 	err := r.Db.Create(&user).Error
@@ -30,7 +30,7 @@ func (r *RegisterRepo) SaveUser(user model.User) error {
 	return nil
 }
 
-func (r *RegisterRepo) GetUserByLogin(login string) (model.User, error) {
+func (r *UserRepo) GetUserByLogin(login string) (model.User, error) {
 	log.Infof("start getting user by login [%s]", login)
 
 	var user model.User

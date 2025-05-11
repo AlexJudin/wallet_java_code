@@ -9,7 +9,7 @@ type Wallet interface {
 	GetWalletBalanceByUUID(walletUUID string) (int64, error)
 }
 
-type Register interface {
+type User interface {
 	GetUserByLogin(login string) (model.User, error)
 	SaveUser(user model.User) error
 }

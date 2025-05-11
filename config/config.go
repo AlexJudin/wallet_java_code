@@ -12,7 +12,8 @@ type Сonfig struct {
 	Host     string
 	Port     string
 	LogLevel log.Level
-	СonfigDB *СonfigDB
+	*СonfigDB
+	*ConfigAuth
 }
 
 type СonfigDB struct {
@@ -21,6 +22,11 @@ type СonfigDB struct {
 	Password string
 	DBName   string
 	Sslmode  string
+}
+
+type ConfigAuth struct {
+	PasswordSalt string
+	TokenSalt    string
 }
 
 func New() (*Сonfig, error) {
@@ -49,6 +55,13 @@ func New() (*Сonfig, error) {
 	}
 
 	cfg.СonfigDB = &dbCfg
+
+	authCfg := ConfigAuth{
+		PasswordSalt: os.Getenv("PASSWORD_SALT"),
+		TokenSalt:    os.Getenv("TOKEN_SALT"),
+	}
+
+	cfg.ConfigAuth = &authCfg
 
 	return &cfg, nil
 }

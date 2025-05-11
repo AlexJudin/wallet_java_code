@@ -1,6 +1,9 @@
 package controller
 
 import (
+	"github.com/AlexJudin/wallet_java_code/config"
+	"github.com/AlexJudin/wallet_java_code/internal/api/controller/auth"
+	"github.com/AlexJudin/wallet_java_code/internal/service"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -13,20 +16,26 @@ import (
 	"github.com/AlexJudin/wallet_java_code/internal/usecases"
 )
 
-func AddRoutes(db *gorm.DB, r *chi.Mux) {
+func AddRoutes(config *config.Сonfig, db *gorm.DB, r *chi.Mux) {
+	// init services
+	authService := service.NewAuthService(config)
+
 	// init repository
 	repoWallet := repository.NewWalletRepo(db)
-	repoRegister := repository.NewRegisterRepo(db)
+	repoUser := repository.NewUserRepo(db)
 
 	// init usecases
 	walletUC := usecases.NewWalletUsecase(repoWallet)
 	walletHandler := wallet.NewWalletHandler(walletUC)
 
-	registerUC := usecases.NewRegisterUsecase(repoRegister)
+	registerUC := usecases.NewRegisterUsecase(repoUser, authService)
 	registerHandler := register.NewRegisterHandler(registerUC)
 
+	authUC := usecases.NewAuthUsecase(repoUser, authService)
+	authHandler := auth.NewAuthHandler(authUC)
+
 	r.Post("/register", registerHandler.RegisterUser)
-	//r.Post("/auth", authHandler.AuthorizationUser)
+	r.Post("/auth", authHandler.AuthorizationUser)
 	//r.Post("/refresh-token", refreshTokenHandler.RefreshToken)
 
 	r.Group(func(r chi.Router) {
