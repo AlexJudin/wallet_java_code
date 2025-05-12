@@ -46,7 +46,7 @@ func (h *AuthHandler) AuthorizationUser(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	tokens, err = h.uc.AuthorizationUser(user.Login, user.Password)
+	tokens, err := h.uc.AuthorizationUser(user.Login, user.Password)
 	switch {
 	case errors.Is(err, custom_error.ErrNotFound):
 		log.Errorf("authorization user error: %+v", err)
@@ -78,7 +78,8 @@ func (h *AuthHandler) AuthorizationUser(w http.ResponseWriter, r *http.Request) 
 		Value:    tokens.RefreshToken,
 		HttpOnly: true,
 	}
+	http.SetCookie(w, &accessTokenCookie)
+	http.SetCookie(w, &refreshTokenCookie)
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
+	w.WriteHeader(http.StatusOK)
 }

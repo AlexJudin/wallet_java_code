@@ -3,9 +3,13 @@ package service
 import (
 	"crypto/sha512"
 	"encoding/hex"
+	"time"
+
+	"github.com/golang-jwt/jwt/v4"
+	"github.com/google/uuid"
 
 	"github.com/AlexJudin/wallet_java_code/config"
-	"github.com/AlexJudin/wallet_java_code/internal/model"
+	"github.com/AlexJudin/wallet_java_code/internal/api/entity"
 )
 
 type AuthService struct {
@@ -29,28 +33,61 @@ func (s AuthService) GenerateHashPassword(password string) string {
 	return hashedPasswordHex
 }
 
-func (s AuthService) GenerateTokens(login string) (model.Tokens, error) {
+func (s AuthService) GenerateTokens(login string) (entity.Tokens, error) {
 	accessTokenID := uuid.NewString()
 	accessToken, err := s.generateAccessToken(login)
 	if err != nil {
-		return model.Tokens{}, err
+		return entity.Tokens{}, err
 	}
 
 	refreshToken, err := s.generateRefreshToken(login, accessTokenID)
 	if err != nil {
-		return model.Tokens{}, err
+		return entity.Tokens{}, err
 	}
 
-	return model.Tokens{
+	// Добавить сохранение токена в БД
+
+	return entity.Tokens{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}, nil
 }
 
 func (s AuthService) generateAccessToken(login string) (string, error) {
+	now := time.Now()
+	claims := entity.AuthClaims{
+		Login: login,
+		RegisteredClaims: jwt.RegisteredClaims{
+			IssuedAt:  jwt.NewNumericDate(now),
+			ExpiresAt: jwt.NewNumericDate(now.Add(5 * time.Minute)),
+		},
+	}
 
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	signedToken, err := token.SignedString(s.Config.TokenSalt) //переделать на []byte
+	if err != nil {
+		return "", err
+	}
+
+	return signedToken, nil
 }
 
 func (s AuthService) generateRefreshToken(login string, accessTokenID string) (string, error) {
+	now := time.Now()
+	claims := entity.RefreshTokenClaims{
+		Login:         login,
+		AccessTokenID: accessTokenID,
+		RegisteredClaims: jwt.RegisteredClaims{
+			IssuedAt:  jwt.NewNumericDate(now),
+			ExpiresAt: jwt.NewNumericDate(now.Add(time.Hour)),
+		},
+	}
 
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	signedToken, err := token.SignedString(s.Config.TokenSalt)
+	if err != nil {
+		return "", err
+	}
+
+	return signedToken, nil
 }

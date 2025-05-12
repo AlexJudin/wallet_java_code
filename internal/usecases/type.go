@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"github.com/AlexJudin/wallet_java_code/internal/api/entity"
 	"github.com/AlexJudin/wallet_java_code/internal/model"
 )
 
@@ -14,5 +15,5 @@ type Register interface {
 }
 
 type Authorization interface {
-	AuthorizationUser(login string, password string) (model.Tokens, error)
+	AuthorizationUser(login string, password string) (entity.Tokens, error)
 }
