@@ -11,6 +11,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	"github.com/AlexJudin/wallet_java_code/internal/api/common"
 	"github.com/AlexJudin/wallet_java_code/internal/custom_error"
 	"github.com/AlexJudin/wallet_java_code/internal/model"
 	"github.com/AlexJudin/wallet_java_code/internal/usecases"
@@ -56,7 +57,7 @@ func (h *WalletHandler) CreateOperation(w http.ResponseWriter, r *http.Request) 
 		log.Errorf("create payment operation error: %+v", err)
 		messageError = "Переданы некорректные данные о платежной операции."
 
-		custom_error.ApiError(http.StatusBadRequest, messageError, w)
+		common.ApiError(http.StatusBadRequest, messageError, w)
 		return
 	}
 
@@ -64,7 +65,7 @@ func (h *WalletHandler) CreateOperation(w http.ResponseWriter, r *http.Request) 
 		log.Errorf("create payment operation error: %+v", err)
 		messageError = "Не удалось прочитать данные о платежной операции."
 
-		custom_error.ApiError(http.StatusBadRequest, messageError, w)
+		common.ApiError(http.StatusBadRequest, messageError, w)
 		return
 	}
 
@@ -72,7 +73,7 @@ func (h *WalletHandler) CreateOperation(w http.ResponseWriter, r *http.Request) 
 		log.Errorf("create payment operation error: %+v", err)
 		messageError = fmt.Sprintf("В данных о платежной операции переданы некорректные поля [%s].", nameFields)
 
-		custom_error.ApiError(http.StatusBadRequest, messageError, w)
+		common.ApiError(http.StatusBadRequest, messageError, w)
 		return
 	}
 
@@ -82,7 +83,7 @@ func (h *WalletHandler) CreateOperation(w http.ResponseWriter, r *http.Request) 
 		log.Errorf("wallet [%s] error: %+v", err)
 		messageError = "Недостаточно средств."
 
-		custom_error.ApiError(http.StatusOK, messageError, w)
+		common.ApiError(http.StatusOK, messageError, w)
 		return
 	case err != nil:
 		log.Errorf("create payment operation: error create payment operation for wallet [%s], operation type [%s], amount [%d]: service is not allowed",
@@ -91,7 +92,7 @@ func (h *WalletHandler) CreateOperation(w http.ResponseWriter, r *http.Request) 
 			paymentOperation.Amount)
 		messageError = "Ошибка сервера, не удалось сохранить данные о платежной операции. Попробуйте позже или обратитесь в тех. поддержку."
 
-		custom_error.ApiError(http.StatusInternalServerError, messageError, w)
+		common.ApiError(http.StatusInternalServerError, messageError, w)
 		return
 	}
 
@@ -125,7 +126,7 @@ func (h *WalletHandler) GetWalletBalanceByUUID(w http.ResponseWriter, r *http.Re
 		log.Errorf("get wallet balance by UUID error: %+v", err)
 		messageError = "Не передан идентификатор кошелька, получение баланса невозможно."
 
-		custom_error.ApiError(http.StatusBadRequest, messageError, w)
+		common.ApiError(http.StatusBadRequest, messageError, w)
 		return
 	}
 
@@ -134,7 +135,7 @@ func (h *WalletHandler) GetWalletBalanceByUUID(w http.ResponseWriter, r *http.Re
 		log.Error("get wallet balance by UUID error: service is not allowed")
 		messageError = "Ошибка сервера, не удалось получить баланс. Попробуйте позже или обратитесь в тех. поддержку."
 
-		custom_error.ApiError(http.StatusInternalServerError, messageError, w)
+		common.ApiError(http.StatusInternalServerError, messageError, w)
 		return
 	}
 
@@ -147,7 +148,7 @@ func (h *WalletHandler) GetWalletBalanceByUUID(w http.ResponseWriter, r *http.Re
 		log.Errorf("get wallet balance by UUID error: %+v", err)
 		messageError = "Ошибка сервера. Попробуйте позже или обратитесь в тех. поддержку."
 
-		custom_error.ApiError(http.StatusInternalServerError, messageError, w)
+		common.ApiError(http.StatusInternalServerError, messageError, w)
 		return
 	}
 
@@ -158,7 +159,7 @@ func (h *WalletHandler) GetWalletBalanceByUUID(w http.ResponseWriter, r *http.Re
 		log.Errorf("get wallet balance by UUID error: %+v", err)
 		messageError = "Сервер недоступен. Попробуйте позже или обратитесь в тех. поддержку."
 
-		custom_error.ApiError(http.StatusInternalServerError, messageError, w)
+		common.ApiError(http.StatusInternalServerError, messageError, w)
 	}
 }
 

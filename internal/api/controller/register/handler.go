@@ -8,6 +8,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	"github.com/AlexJudin/wallet_java_code/internal/api/common"
 	"github.com/AlexJudin/wallet_java_code/internal/custom_error"
 	"github.com/AlexJudin/wallet_java_code/internal/model"
 	"github.com/AlexJudin/wallet_java_code/internal/usecases"
@@ -34,7 +35,7 @@ func (h *RegisterHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 		log.Errorf("register user error: %+v", err)
 		messageError = "Переданы некорректные логин/пароль."
 
-		custom_error.ApiError(http.StatusBadRequest, messageError, w)
+		common.ApiError(http.StatusBadRequest, messageError, w)
 		return
 	}
 
@@ -42,7 +43,7 @@ func (h *RegisterHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 		log.Errorf("register user error: %+v", err)
 		messageError = "Не удалось прочитать логин/пароль."
 
-		custom_error.ApiError(http.StatusBadRequest, messageError, w)
+		common.ApiError(http.StatusBadRequest, messageError, w)
 		return
 	}
 
@@ -52,13 +53,13 @@ func (h *RegisterHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
 		log.Errorf("register user error: %+v", err)
 		messageError = "Пользователь уже зарегистрирован."
 
-		custom_error.ApiError(http.StatusConflict, messageError, w)
+		common.ApiError(http.StatusConflict, messageError, w)
 		return
 	case err != nil:
 		log.Errorf("register user error: %+v", err)
 		messageError = "Ошибка сервера, не удалось зарегистрировать пользователя. Попробуйте позже или обратитесь в тех. поддержку."
 
-		custom_error.ApiError(http.StatusInternalServerError, messageError, w)
+		common.ApiError(http.StatusInternalServerError, messageError, w)
 		return
 	}
 

@@ -8,6 +8,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	"github.com/AlexJudin/wallet_java_code/internal/api/common"
 	"github.com/AlexJudin/wallet_java_code/internal/custom_error"
 	"github.com/AlexJudin/wallet_java_code/internal/model"
 	"github.com/AlexJudin/wallet_java_code/internal/usecases"
@@ -34,7 +35,7 @@ func (h *AuthHandler) AuthorizationUser(w http.ResponseWriter, r *http.Request) 
 		log.Errorf("authorization user error: %+v", err)
 		messageError = "Переданы некорректные логин/пароль."
 
-		custom_error.ApiError(http.StatusBadRequest, messageError, w)
+		common.ApiError(http.StatusBadRequest, messageError, w)
 		return
 	}
 
@@ -42,7 +43,7 @@ func (h *AuthHandler) AuthorizationUser(w http.ResponseWriter, r *http.Request) 
 		log.Errorf("authorization user error: %+v", err)
 		messageError = "Не удалось прочитать логин/пароль."
 
-		custom_error.ApiError(http.StatusBadRequest, messageError, w)
+		common.ApiError(http.StatusBadRequest, messageError, w)
 		return
 	}
 
@@ -52,19 +53,19 @@ func (h *AuthHandler) AuthorizationUser(w http.ResponseWriter, r *http.Request) 
 		log.Errorf("authorization user error: %+v", err)
 		messageError = "Пользователь не найден."
 
-		custom_error.ApiError(http.StatusNotFound, messageError, w)
+		common.ApiError(http.StatusNotFound, messageError, w)
 		return
 	case errors.Is(err, custom_error.ErrIncorrectPassword):
 		log.Errorf("authorization user error: %+v", err)
 		messageError = "Некорректный пароль."
 
-		custom_error.ApiError(http.StatusForbidden, messageError, w)
+		common.ApiError(http.StatusForbidden, messageError, w)
 		return
 	case err != nil:
 		log.Errorf("authorization user error: %+v", err)
 		messageError = "Ошибка сервера, не удалось авторизовать пользователя. Попробуйте позже или обратитесь в тех. поддержку."
 
-		custom_error.ApiError(http.StatusInternalServerError, messageError, w)
+		common.ApiError(http.StatusInternalServerError, messageError, w)
 		return
 	}
 
@@ -85,5 +86,14 @@ func (h *AuthHandler) AuthorizationUser(w http.ResponseWriter, r *http.Request) 
 }
 
 func (h *AuthHandler) RefreshToken(w http.ResponseWriter, r *http.Request) {
+	refreshToken, err := r.Cookie("refreshToken")
+	if err != nil {
+		log.Error("refresh token not found")
+		messageError = "refresh token не найден"
 
+		common.ApiError(http.StatusUnauthorized, messageError, w)
+		return
+	}
+
+	tokens, err := h.uc.RefreshToken(refreshToken.Value)
 }

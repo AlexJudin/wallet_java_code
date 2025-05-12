@@ -1,12 +1,11 @@
 package middleware
 
 import (
-	"encoding/json"
 	"net/http"
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/AlexJudin/wallet_java_code/internal/api/entity"
+	"github.com/AlexJudin/wallet_java_code/internal/api/common"
 	"github.com/AlexJudin/wallet_java_code/internal/service"
 )
 
@@ -24,17 +23,13 @@ func (a *AuthMiddleware) CheckToken(next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		accessToken, err := r.Cookie("accessToken")
 		if err != nil {
-			w.WriteHeader(http.StatusUnauthorized)
-			apiError, _ := json.Marshal(entity.ApiError{Error: "access token not found"})
-			w.Write(apiError)
+			common.ApiError(http.StatusUnauthorized, "access token not found", w)
 			return
 		}
 
 		userLogin, err := a.authService.VerifyUser(accessToken.Value)
 		if err != nil {
-			w.WriteHeader(http.StatusUnauthorized)
-			apiError, _ := json.Marshal(entity.ApiError{Error: err.Error()})
-			w.Write(apiError)
+			common.ApiError(http.StatusUnauthorized, err.Error(), w)
 			return
 		}
 
