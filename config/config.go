@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
@@ -25,8 +26,10 @@ type СonfigDB struct {
 }
 
 type ConfigAuth struct {
-	PasswordSalt string
-	TokenSalt    string
+	PasswordSalt    string
+	TokenSalt       string
+	AccessTokenTTL  time.Duration
+	RefreshTokenTTL time.Duration
 }
 
 func New() (*Сonfig, error) {
@@ -57,8 +60,10 @@ func New() (*Сonfig, error) {
 	cfg.СonfigDB = &dbCfg
 
 	authCfg := ConfigAuth{
-		PasswordSalt: os.Getenv("PASSWORD_SALT"),
-		TokenSalt:    os.Getenv("TOKEN_SALT"),
+		PasswordSalt:    os.Getenv("PASSWORD_SALT"),
+		TokenSalt:       os.Getenv("TOKEN_SALT"),
+		AccessTokenTTL:  5 * time.Minute,
+		RefreshTokenTTL: 60 * time.Minute,
 	}
 
 	cfg.ConfigAuth = &authCfg
