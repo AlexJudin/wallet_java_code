@@ -34,7 +34,7 @@ func (h *AuthHandler) AuthorizationUser(w http.ResponseWriter, r *http.Request) 
 		log.Errorf("authorization user error: %+v", err)
 		messageError = "Переданы некорректные логин/пароль."
 
-		custom_error.ReturnHTTPErr(http.StatusBadRequest, messageError, w)
+		custom_error.ApiError(http.StatusBadRequest, messageError, w)
 		return
 	}
 
@@ -42,7 +42,7 @@ func (h *AuthHandler) AuthorizationUser(w http.ResponseWriter, r *http.Request) 
 		log.Errorf("authorization user error: %+v", err)
 		messageError = "Не удалось прочитать логин/пароль."
 
-		custom_error.ReturnHTTPErr(http.StatusBadRequest, messageError, w)
+		custom_error.ApiError(http.StatusBadRequest, messageError, w)
 		return
 	}
 
@@ -52,19 +52,19 @@ func (h *AuthHandler) AuthorizationUser(w http.ResponseWriter, r *http.Request) 
 		log.Errorf("authorization user error: %+v", err)
 		messageError = "Пользователь не найден."
 
-		custom_error.ReturnHTTPErr(http.StatusNotFound, messageError, w)
+		custom_error.ApiError(http.StatusNotFound, messageError, w)
 		return
 	case errors.Is(err, custom_error.ErrIncorrectPassword):
 		log.Errorf("authorization user error: %+v", err)
 		messageError = "Некорректный пароль."
 
-		custom_error.ReturnHTTPErr(http.StatusForbidden, messageError, w)
+		custom_error.ApiError(http.StatusForbidden, messageError, w)
 		return
 	case err != nil:
 		log.Errorf("authorization user error: %+v", err)
 		messageError = "Ошибка сервера, не удалось авторизовать пользователя. Попробуйте позже или обратитесь в тех. поддержку."
 
-		custom_error.ReturnHTTPErr(http.StatusInternalServerError, messageError, w)
+		custom_error.ApiError(http.StatusInternalServerError, messageError, w)
 		return
 	}
 
@@ -82,4 +82,8 @@ func (h *AuthHandler) AuthorizationUser(w http.ResponseWriter, r *http.Request) 
 	http.SetCookie(w, &refreshTokenCookie)
 
 	w.WriteHeader(http.StatusOK)
+}
+
+func (h *AuthHandler) RefreshToken(w http.ResponseWriter, r *http.Request) {
+
 }

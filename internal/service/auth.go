@@ -3,6 +3,7 @@ package service
 import (
 	"crypto/sha512"
 	"encoding/hex"
+	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -51,6 +52,23 @@ func (s AuthService) GenerateTokens(login string) (entity.Tokens, error) {
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}, nil
+}
+
+func (s AuthService) VerifyUser(token string) (string, error) {
+	claims := &entity.AuthClaims{}
+	parsedToken, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("incorrect method")
+		}
+
+		return s.Config.TokenSalt, nil
+	})
+
+	if err != nil || !parsedToken.Valid {
+		return "", fmt.Errorf("incorrect token: %+v", err)
+	}
+
+	return claims.Login, nil
 }
 
 func (s AuthService) generateAccessToken(login string) (string, error) {

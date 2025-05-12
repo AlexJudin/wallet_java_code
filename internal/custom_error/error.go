@@ -6,6 +6,8 @@ import (
 	"net/http"
 
 	log "github.com/sirupsen/logrus"
+
+	"github.com/AlexJudin/wallet_java_code/internal/api/entity"
 )
 
 var (
@@ -15,12 +17,8 @@ var (
 	ErrUserAlreadyExists = errors.New("user already exists")
 )
 
-type errHTTPResponse struct {
-	Error string `json:"error"`
-}
-
-func ReturnHTTPErr(status int, messageError string, w http.ResponseWriter) {
-	message := errHTTPResponse{
+func ApiError(status int, messageError string, w http.ResponseWriter) {
+	message := entity.ApiError{
 		Error: messageError,
 	}
 

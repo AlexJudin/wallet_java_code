@@ -1,18 +1,19 @@
 package controller
 
 import (
-	"github.com/AlexJudin/wallet_java_code/config"
-	"github.com/AlexJudin/wallet_java_code/internal/api/controller/auth"
-	"github.com/AlexJudin/wallet_java_code/internal/service"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/httprate"
 	"gorm.io/gorm"
 
+	"github.com/AlexJudin/wallet_java_code/config"
+	"github.com/AlexJudin/wallet_java_code/internal/api/controller/auth"
 	"github.com/AlexJudin/wallet_java_code/internal/api/controller/register"
 	"github.com/AlexJudin/wallet_java_code/internal/api/controller/wallet"
+	"github.com/AlexJudin/wallet_java_code/internal/api/middleware"
 	"github.com/AlexJudin/wallet_java_code/internal/repository"
+	"github.com/AlexJudin/wallet_java_code/internal/service"
 	"github.com/AlexJudin/wallet_java_code/internal/usecases"
 )
 
@@ -34,13 +35,16 @@ func AddRoutes(config *config.Сonfig, db *gorm.DB, r *chi.Mux) {
 	authUC := usecases.NewAuthUsecase(repoUser, authService)
 	authHandler := auth.NewAuthHandler(authUC)
 
+	// init middleware
+	authMiddleware := middleware.NewAuthMiddleware(authService)
+
 	r.Post("/register", registerHandler.RegisterUser)
 	r.Post("/auth", authHandler.AuthorizationUser)
-	//r.Post("/refresh-token", refreshTokenHandler.RefreshToken)
+	r.Post("/refresh-token", authHandler.RefreshToken)
 
 	r.Group(func(r chi.Router) {
 		r.Use(httprate.LimitByIP(5000, time.Second))
-		//r.Use(authMiddleware.CheckToken)
+		r.Use(authMiddleware.CheckToken)
 		r.Post("/api/v1/wallet", walletHandler.CreateOperation)
 		r.Get("/api/v1/wallets/", walletHandler.GetWalletBalanceByUUID)
 	})

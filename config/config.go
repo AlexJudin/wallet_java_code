@@ -9,6 +9,11 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+const (
+	accessTokenTTLDefault  = 5
+	refreshTokenTTLDefault = 60
+)
+
 type Сonfig struct {
 	Host     string
 	Port     string
@@ -59,11 +64,21 @@ func New() (*Сonfig, error) {
 
 	cfg.СonfigDB = &dbCfg
 
+	accessTokenTTL, err := time.ParseDuration(os.Getenv("ACCESS_TOKEN_TTL"))
+	if err != nil {
+		accessTokenTTL = accessTokenTTLDefault
+	}
+
+	refreshTokenTTL, err := time.ParseDuration(os.Getenv("REFRESH_TOKEN_TTL"))
+	if err != nil {
+		refreshTokenTTL = refreshTokenTTLDefault
+	}
+
 	authCfg := ConfigAuth{
 		PasswordSalt:    os.Getenv("PASSWORD_SALT"),
 		TokenSalt:       os.Getenv("TOKEN_SALT"),
-		AccessTokenTTL:  5 * time.Minute,
-		RefreshTokenTTL: 60 * time.Minute,
+		AccessTokenTTL:  accessTokenTTL * time.Minute,
+		RefreshTokenTTL: refreshTokenTTL * time.Minute,
 	}
 
 	cfg.ConfigAuth = &authCfg
