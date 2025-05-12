@@ -71,13 +71,39 @@ func (s AuthService) VerifyUser(token string) (string, error) {
 	return claims.Login, nil
 }
 
+func (s AuthService) RefreshToken(token string) (entity.Tokens, error) {
+	claims := &entity.RefreshTokenClaims{}
+	parsedToken, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("incorrect method")
+		}
+
+		return s.Config.TokenSalt, nil
+	})
+
+	if err != nil || !parsedToken.Valid {
+		return entity.Tokens{}, fmt.Errorf("incorrect refresh token: %+v", err)
+	}
+
+	// поиск токена в хранилище claims.AccessTokenID
+
+	tokens, err := s.GenerateTokens(claims.Login)
+	if err != nil {
+		return entity.Tokens{}, err
+	}
+
+	// удалить старую пару токенов claims.AccessTokenID
+
+	return tokens, nil
+}
+
 func (s AuthService) generateAccessToken(login string) (string, error) {
 	now := time.Now()
 	claims := entity.AuthClaims{
 		Login: login,
 		RegisteredClaims: jwt.RegisteredClaims{
 			IssuedAt:  jwt.NewNumericDate(now),
-			ExpiresAt: jwt.NewNumericDate(now.Add(5 * time.Minute)),
+			ExpiresAt: jwt.NewNumericDate(now.Add(s.Config.AccessTokenTTL)),
 		},
 	}
 
@@ -97,7 +123,7 @@ func (s AuthService) generateRefreshToken(login string, accessTokenID string) (s
 		AccessTokenID: accessTokenID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			IssuedAt:  jwt.NewNumericDate(now),
-			ExpiresAt: jwt.NewNumericDate(now.Add(time.Hour)),
+			ExpiresAt: jwt.NewNumericDate(now.Add(s.Config.RefreshTokenTTL)),
 		},
 	}
 

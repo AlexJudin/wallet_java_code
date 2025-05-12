@@ -38,3 +38,7 @@ func (u *AuthUsecase) AuthorizationUser(login string, password string) (entity.T
 
 	return u.ServiceAuth.GenerateTokens(login)
 }
+
+func (u *AuthUsecase) RefreshToken(refreshToken string) (entity.Tokens, error) {
+	return u.ServiceAuth.RefreshToken(refreshToken)
+}

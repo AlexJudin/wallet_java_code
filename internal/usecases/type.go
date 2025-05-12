@@ -16,4 +16,5 @@ type Register interface {
 
 type Authorization interface {
 	AuthorizationUser(login string, password string) (entity.Tokens, error)
+	RefreshToken(refreshToken string) (entity.Tokens, error)
 }

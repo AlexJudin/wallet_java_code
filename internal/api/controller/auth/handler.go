@@ -96,4 +96,34 @@ func (h *AuthHandler) RefreshToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tokens, err := h.uc.RefreshToken(refreshToken.Value)
+	if err != nil {
+		if errors.Is(err, custom_error.ErrNotFound) {
+			log.Error("token not found in storage")
+			messageError = "Токен не найден"
+
+			common.ApiError(http.StatusNotFound, messageError, w)
+			return
+		}
+
+		log.Error("cannot refresh token")
+		messageError = "Не удалось обновить токен"
+
+		common.ApiError(http.StatusInternalServerError, messageError, w)
+		return
+	}
+
+	accessTokenCookie := http.Cookie{
+		Name:     "accessToken",
+		Value:    tokens.AccessToken,
+		HttpOnly: true,
+	}
+	refreshTokenCookie := http.Cookie{
+		Name:     "refreshToken",
+		Value:    tokens.RefreshToken,
+		HttpOnly: true,
+	}
+	http.SetCookie(w, &accessTokenCookie)
+	http.SetCookie(w, &refreshTokenCookie)
+
+	w.WriteHeader(http.StatusOK)
 }
