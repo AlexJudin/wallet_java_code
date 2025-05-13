@@ -10,7 +10,7 @@ func SetBalance(walletId string, balance int64) error {
 
 	user := User{ID: 1, Name: "John Doe"}
 
-	err := client.Set(ctx, "user:1", user, 5*time.Minute).Err()
+	err := client.HSet(ctx, "user:1", user, 5*time.Minute).Err()
 	if err != nil {
 		return err
 	}
@@ -23,7 +23,7 @@ func GetBalance(walletId string) (int64, error) {
 
 	user := User{ID: 1, Name: "John Doe"}
 
-	err := client.Get(ctx, "user:1").Scan(&user)
+	err := client.HGet(ctx, "user:1").Scan(&user)
 	if err != nil {
 		return 0, err
 	}

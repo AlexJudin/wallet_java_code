@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/httprate"
+	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 
 	"github.com/AlexJudin/wallet_java_code/config"
@@ -17,7 +18,7 @@ import (
 	"github.com/AlexJudin/wallet_java_code/internal/usecases"
 )
 
-func AddRoutes(config *config.Сonfig, db *gorm.DB, r *chi.Mux) {
+func AddRoutes(config *config.Сonfig, db *gorm.DB, redisClient *redis.Client, r *chi.Mux) {
 	// init services
 	authService := service.NewAuthService(config)
 

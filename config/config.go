@@ -20,6 +20,7 @@ type Сonfig struct {
 	LogLevel log.Level
 	*СonfigDB
 	*ConfigAuth
+	*ConfigRedis
 }
 
 type СonfigDB struct {
@@ -35,6 +36,12 @@ type ConfigAuth struct {
 	TokenSalt       string
 	AccessTokenTTL  time.Duration
 	RefreshTokenTTL time.Duration
+}
+
+type ConfigRedis struct {
+	Host     string
+	Port     string
+	Password string
 }
 
 func New() (*Сonfig, error) {
@@ -61,7 +68,6 @@ func New() (*Сonfig, error) {
 		Password: os.Getenv("DB_PASSWORD"),
 		DBName:   os.Getenv("DB_NAME"),
 	}
-
 	cfg.СonfigDB = &dbCfg
 
 	accessTokenTTL, err := time.ParseDuration(os.Getenv("ACCESS_TOKEN_TTL"))
@@ -80,8 +86,14 @@ func New() (*Сonfig, error) {
 		AccessTokenTTL:  accessTokenTTL * time.Minute,
 		RefreshTokenTTL: refreshTokenTTL * time.Minute,
 	}
-
 	cfg.ConfigAuth = &authCfg
+
+	redisCfg := ConfigRedis{
+		Host:     os.Getenv("REDIS_HOST"),
+		Port:     os.Getenv("REDIS_PORT"),
+		Password: os.Getenv("REDIS_PASSWORD"),
+	}
+	cfg.ConfigRedis = &redisCfg
 
 	return &cfg, nil
 }

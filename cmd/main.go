@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/AlexJudin/wallet_java_code/internal/cache"
 	"net/http"
 	"os"
 	"os/signal"
@@ -40,8 +41,13 @@ func main() {
 		log.Fatal(err)
 	}
 
+	redisClient, err := cache.ConnectToRedis(cfg)
+	if err != nil {
+		log.Error("error connecting to redis")
+	}
+
 	r := chi.NewRouter()
-	controller.AddRoutes(cfg, db, r)
+	controller.AddRoutes(cfg, db, redisClient, r)
 
 	startHTTPServer(cfg, r)
 }

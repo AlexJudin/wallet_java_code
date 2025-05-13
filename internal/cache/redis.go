@@ -2,8 +2,11 @@ package cache
 
 import (
 	"context"
+	"strings"
 
 	"github.com/redis/go-redis/v9"
+
+	"github.com/AlexJudin/wallet_java_code/config"
 )
 
 type User struct {
@@ -11,10 +14,16 @@ type User struct {
 	Name string `json:"name"`
 }
 
-func ConnectToRedis(connString string) (*redis.Client, error) {
+func ConnectToRedis(cfg *config.Сonfig) (*redis.Client, error) {
+	var connStr strings.Builder
+
+	connStr.WriteString(cfg.ConfigRedis.Host)
+	connStr.WriteString(":")
+	connStr.WriteString(cfg.ConfigRedis.Port)
+
 	client := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "1234",
+		Addr:     connStr.String(),
+		Password: cfg.ConfigRedis.Password,
 		DB:       0,
 	})
 

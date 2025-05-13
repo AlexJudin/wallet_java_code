@@ -4,6 +4,7 @@ import (
 	"crypto/sha512"
 	"encoding/hex"
 	"fmt"
+	"github.com/AlexJudin/wallet_java_code/internal/custom_error"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -14,11 +15,15 @@ import (
 )
 
 type AuthService struct {
-	Config *config.Сonfig
+	Config       *config.Сonfig
+	tokenStorage map[string]string
 }
 
 func NewAuthService(cfg *config.Сonfig) AuthService {
-	return AuthService{Config: cfg}
+	return AuthService{
+		Config:       cfg,
+		tokenStorage: make(map[string]string),
+	}
 }
 
 func (s AuthService) GenerateHashPassword(password string) string {
@@ -47,6 +52,7 @@ func (s AuthService) GenerateTokens(login string) (entity.Tokens, error) {
 	}
 
 	// Добавить сохранение токена в БД
+	s.tokenStorage[accessTokenID] = login
 
 	return entity.Tokens{
 		AccessToken:  accessToken,
@@ -86,6 +92,10 @@ func (s AuthService) RefreshToken(token string) (entity.Tokens, error) {
 	}
 
 	// поиск токена в хранилище claims.AccessTokenID
+	login, ok := s.tokenStorage[claims.AccessTokenID]
+	if !ok || login != claims.Login {
+		return entity.Tokens{}, custom_error.ErrNotFound
+	}
 
 	tokens, err := s.GenerateTokens(claims.Login)
 	if err != nil {
@@ -93,6 +103,7 @@ func (s AuthService) RefreshToken(token string) (entity.Tokens, error) {
 	}
 
 	// удалить старую пару токенов claims.AccessTokenID
+	delete(s.tokenStorage, claims.AccessTokenID)
 
 	return tokens, nil
 }
