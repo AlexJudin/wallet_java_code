@@ -4,7 +4,6 @@ import (
 	"crypto/sha512"
 	"encoding/hex"
 	"fmt"
-	"github.com/AlexJudin/wallet_java_code/internal/custom_error"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -12,6 +11,7 @@ import (
 
 	"github.com/AlexJudin/wallet_java_code/config"
 	"github.com/AlexJudin/wallet_java_code/internal/api/entity"
+	"github.com/AlexJudin/wallet_java_code/internal/custom_error"
 )
 
 type AuthService struct {
