@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"time"
 
 	log "github.com/sirupsen/logrus"
 
@@ -38,14 +37,16 @@ func NewWalletHandler(uc usecases.Wallet) WalletHandler {
 // @Failure 500 {object} errResponse
 // @Router /api/v1/wallet [post]
 func (h *WalletHandler) CreateOperation(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	select {
-	case <-time.After(1 * time.Second):
-		log.Info("create payment operation processed")
-	case <-ctx.Done():
-		err := ctx.Err()
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	/*
+		ctx := r.Context()
+		select {
+		case <-time.After(1 * time.Second):
+			log.Info("create payment operation processed")
+		case <-ctx.Done():
+			err := ctx.Err()
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	*/
 
 	var (
 		paymentOperation model.PaymentOperation
@@ -111,14 +112,16 @@ func (h *WalletHandler) CreateOperation(w http.ResponseWriter, r *http.Request) 
 // @Failure 500 {object} errResponse
 // @Router /api/v1/wallets/ [get]
 func (h *WalletHandler) GetWalletBalanceByUUID(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	select {
-	case <-time.After(1 * time.Second):
-		log.Info("get wallet balance by UUID processed")
-	case <-ctx.Done():
-		err := ctx.Err()
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	/*
+		ctx := r.Context()
+		select {
+		case <-time.After(1 * time.Second):
+			log.Info("get wallet balance by UUID processed")
+		case <-ctx.Done():
+			err := ctx.Err()
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	*/
 
 	walletUUID := r.FormValue("WALLET_UUID")
 	if walletUUID == "" {

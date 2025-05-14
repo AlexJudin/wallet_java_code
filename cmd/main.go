@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/AlexJudin/wallet_java_code/internal/cache"
 	"net/http"
 	"os"
 	"os/signal"
@@ -15,6 +14,7 @@ import (
 
 	"github.com/AlexJudin/wallet_java_code/config"
 	"github.com/AlexJudin/wallet_java_code/internal/api/controller"
+	"github.com/AlexJudin/wallet_java_code/internal/cache"
 	"github.com/AlexJudin/wallet_java_code/internal/repository"
 )
 

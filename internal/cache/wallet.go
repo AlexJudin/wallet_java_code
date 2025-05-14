@@ -1,32 +1,33 @@
 package cache
 
-import (
-	"context"
-	"time"
-)
-
 func SetBalance(walletId string, balance int64) error {
-	ctx := context.Background()
+	/*
+		ctx := context.Background()
 
-	user := User{ID: 1, Name: "John Doe"}
+		user := User{ID: 1, Name: "John Doe"}
 
-	err := client.HSet(ctx, "user:1", user, 5*time.Minute).Err()
-	if err != nil {
-		return err
-	}
+		err := client.HSet(ctx, "user:1", user, 5*time.Minute).Err()
+		if err != nil {
+			return err
+		}
+	*/
 
 	return nil
 }
 
 func GetBalance(walletId string) (int64, error) {
-	ctx := context.Background()
+	/*
+		ctx := context.Background()
 
-	user := User{ID: 1, Name: "John Doe"}
+		user := User{ID: 1, Name: "John Doe"}
 
-	err := client.HGet(ctx, "user:1").Scan(&user)
-	if err != nil {
-		return 0, err
-	}
+		err := client.HGet(ctx, "user:1").Scan(&user)
+		if err != nil {
+			return 0, err
+		}
 
-	return user.ID, nil
+		return user.ID, nil
+	*/
+
+	return 0, nil
 }

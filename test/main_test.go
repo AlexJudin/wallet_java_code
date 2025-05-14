@@ -2,7 +2,6 @@ package test
 
 import (
 	"fmt"
-	"github.com/AlexJudin/wallet_java_code/internal/api/controller/wallet"
 	"os"
 	"testing"
 
@@ -10,6 +9,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 
+	"github.com/AlexJudin/wallet_java_code/internal/api/controller/wallet"
 	"github.com/AlexJudin/wallet_java_code/internal/repository"
 	"github.com/AlexJudin/wallet_java_code/internal/usecases"
 )

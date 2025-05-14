@@ -32,8 +32,8 @@ type СonfigDB struct {
 }
 
 type ConfigAuth struct {
-	PasswordSalt    string
-	TokenSalt       string
+	PasswordSalt    []byte
+	TokenSalt       []byte
 	AccessTokenTTL  time.Duration
 	RefreshTokenTTL time.Duration
 }
@@ -81,8 +81,8 @@ func New() (*Сonfig, error) {
 	}
 
 	authCfg := ConfigAuth{
-		PasswordSalt:    os.Getenv("PASSWORD_SALT"),
-		TokenSalt:       os.Getenv("TOKEN_SALT"),
+		PasswordSalt:    []byte(os.Getenv("PASSWORD_SALT")),
+		TokenSalt:       []byte(os.Getenv("TOKEN_SALT")),
 		AccessTokenTTL:  accessTokenTTL * time.Minute,
 		RefreshTokenTTL: refreshTokenTTL * time.Minute,
 	}
@@ -99,7 +99,7 @@ func New() (*Сonfig, error) {
 }
 
 func (c *Сonfig) GetDataSourceName() string {
-	str := fmt.Sprintf("host=db port=%s user=%s password=%s dbname=%s sslmode=disable",
+	str := fmt.Sprintf("host=localhost port=%s user=%s password=%s dbname=%s sslmode=disable",
 		c.СonfigDB.Port, c.СonfigDB.User, c.СonfigDB.Password, c.СonfigDB.DBName)
 
 	return str
