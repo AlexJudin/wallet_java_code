@@ -23,7 +23,9 @@ type WalletHandler struct {
 }
 
 func NewWalletHandler(uc usecases.Wallet) WalletHandler {
-	return WalletHandler{uc: uc}
+	return WalletHandler{
+		uc: uc,
+	}
 }
 
 // CreateOperation ... Добавить новую платежную операцию

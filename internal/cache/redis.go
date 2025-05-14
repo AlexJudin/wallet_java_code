@@ -22,8 +22,7 @@ func ConnectToRedis(cfg *config.Сonfig) (*redis.Client, error) {
 	connStr.WriteString(cfg.ConfigRedis.Port)
 
 	client := redis.NewClient(&redis.Options{
-		Addr: connStr.String(),
-		//Username: "user",
+		Addr:     connStr.String(),
 		Password: cfg.ConfigRedis.Password,
 		DB:       0,
 	})

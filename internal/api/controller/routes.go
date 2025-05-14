@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"github.com/AlexJudin/wallet_java_code/internal/cache"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -26,8 +27,11 @@ func AddRoutes(config *config.Сonfig, db *gorm.DB, redisClient *redis.Client, r
 	repoWallet := repository.NewWalletRepo(db)
 	repoUser := repository.NewUserRepo(db)
 
+	// init cache
+	cache := cache.NewCacheClientRepo(redisClient)
+
 	// init usecases
-	walletUC := usecases.NewWalletUsecase(repoWallet)
+	walletUC := usecases.NewWalletUsecase(repoWallet, cache)
 	walletHandler := wallet.NewWalletHandler(walletUC)
 
 	registerUC := usecases.NewRegisterUsecase(repoUser, authService)

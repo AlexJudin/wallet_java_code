@@ -1,33 +1,38 @@
 package cache
 
-func SetBalance(walletId string, balance int64) error {
-	/*
-		ctx := context.Background()
+import (
+	"context"
+	"time"
 
-		user := User{ID: 1, Name: "John Doe"}
+	"github.com/redis/go-redis/v9"
+)
 
-		err := client.HSet(ctx, "user:1", user, 5*time.Minute).Err()
-		if err != nil {
-			return err
-		}
-	*/
+var _ Client = (*CacheClientRepo)(nil)
+
+type CacheClientRepo struct {
+	RedisClient *redis.Client
+}
+
+func NewCacheClientRepo(redisClient *redis.Client) *CacheClientRepo {
+	return &CacheClientRepo{
+		RedisClient: redisClient,
+	}
+}
+
+func (c CacheClientRepo) SetValue(ctx context.Context, key string, value any) error {
+	err := c.RedisClient.Set(ctx, key, value, 5*time.Minute).Err()
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
 
-func GetBalance(walletId string) (int64, error) {
-	/*
-		ctx := context.Background()
+func (c CacheClientRepo) GetValue(ctx context.Context, key string) (string, error) {
+	result, err := c.RedisClient.Get(ctx, key).Result()
+	if err != nil {
+		return "", err
+	}
 
-		user := User{ID: 1, Name: "John Doe"}
-
-		err := client.HGet(ctx, "user:1").Scan(&user)
-		if err != nil {
-			return 0, err
-		}
-
-		return user.ID, nil
-	*/
-
-	return 0, nil
+	return result, nil
 }
