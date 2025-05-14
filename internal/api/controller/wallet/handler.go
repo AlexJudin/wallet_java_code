@@ -144,6 +144,11 @@ func (h *WalletHandler) GetWalletBalanceByUUID(w http.ResponseWriter, r *http.Re
 		return
 	}
 
+	err = h.uc.SetCacheValue(r.Context(), walletUUID, balance)
+	if err != nil {
+		log.Error("")
+	}
+
 	respMap := map[string]interface{}{
 		"balance": balance,
 	}
