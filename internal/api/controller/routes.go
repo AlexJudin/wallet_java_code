@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"github.com/AlexJudin/wallet_java_code/internal/cache"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -14,6 +13,7 @@ import (
 	"github.com/AlexJudin/wallet_java_code/internal/api/controller/register"
 	"github.com/AlexJudin/wallet_java_code/internal/api/controller/wallet"
 	"github.com/AlexJudin/wallet_java_code/internal/api/middleware"
+	"github.com/AlexJudin/wallet_java_code/internal/cache"
 	"github.com/AlexJudin/wallet_java_code/internal/repository"
 	"github.com/AlexJudin/wallet_java_code/internal/service"
 	"github.com/AlexJudin/wallet_java_code/internal/usecases"
