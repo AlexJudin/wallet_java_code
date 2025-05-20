@@ -4,11 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/AlexJudin/wallet_java_code/internal/usecases"
+	"github.com/redis/go-redis/v9"
+	"gorm.io/gorm"
 	"net/http"
 	"os"
 	"os/signal"
 	"strconv"
-	"sync"
 	"syscall"
 	"time"
 
@@ -19,6 +21,7 @@ import (
 	"github.com/AlexJudin/wallet_java_code/config"
 	"github.com/AlexJudin/wallet_java_code/internal/api/controller"
 	"github.com/AlexJudin/wallet_java_code/internal/cache"
+	"github.com/AlexJudin/wallet_java_code/internal/kafka"
 	"github.com/AlexJudin/wallet_java_code/internal/model"
 	"github.com/AlexJudin/wallet_java_code/internal/repository"
 )
@@ -51,10 +54,22 @@ func main() {
 		log.Error("error connecting to redis")
 	}
 
+	consumer, err := kafka.NewConsumer(cfg)
+	if err != nil {
+		log.Fatalf("failed to create consumer: %+v", err)
+	}
+	defer consumer.Close()
+
+	producer, err := kafka.NewProducer(cfg)
+	if err != nil {
+		log.Fatalf("failed to create producer: %+v", err)
+	}
+	defer producer.Close()
+
 	r := chi.NewRouter()
 	controller.AddRoutes(cfg, db, redisClient, r)
 
-	startKafka()
+	startKafka(consumer, producer, db, redisClient)
 
 	startHTTPServer(cfg, r)
 }
@@ -99,64 +114,22 @@ func startHTTPServer(cfg *config.Сonfig, r *chi.Mux) {
 	}
 }
 
-const (
-	PaymentOperationTopic = "PaymentOperation"
-)
-
-func startKafka() {
-	consumer, err := sarama.NewConsumer([]string{"localhost:9092"}, nil)
-	if err != nil {
-		log.Fatalf("failed to create consumer: %+v", err)
-	}
-	defer consumer.Close()
-
-	producer, err := sarama.NewSyncProducer([]string{"localhost:9092"}, nil)
-	if err != nil {
-		log.Fatalf("failed to create producer: %+v", err)
-	}
-	defer producer.Close()
-
-	partConsumer, err := consumer.ConsumePartition(PaymentOperationTopic, 0, sarama.OffsetNewest)
+func startKafka(consumer sarama.Consumer, producer sarama.SyncProducer, db *gorm.DB, redisClient *redis.Client) {
+	partConsumer, err := consumer.ConsumePartition(kafka.PaymentOperationTopic, 0, sarama.OffsetNewest)
 	if err != nil {
 		log.Fatalf("Failed to consume partition: %+v", err)
 	}
-	//defer partConsumer.Close()
 
 	publish(producer)
 
-	var wg sync.WaitGroup
+	repoWallet := repository.NewWalletRepo(db)
+	cache := cache.NewCacheClientRepo(redisClient)
+
+	uc := usecases.NewWalletUsecase(repoWallet, cache)
+	walletKafka := kafka.NewPaymentOperationTopicHandler(uc, partConsumer)
 
 	for w := 1; w <= 3; w++ {
-		wg.Add(1)
-		go Handler(w, partConsumer, &wg)
-	}
-
-	wg.Wait()
-	partConsumer.Close()
-}
-
-func Handler(id int, partConsumer sarama.PartitionConsumer, wg *sync.WaitGroup) {
-	defer wg.Done()
-	for {
-		select {
-		// Чтение сообщения из Kafka
-		case msg, ok := <-partConsumer.Messages():
-			if !ok {
-				log.Println("Channel closed, exiting goroutine")
-				return
-			}
-			// Десериализация входящего сообщения из JSON
-			var receivedMessage model.PaymentOperation
-			err := json.Unmarshal(msg.Value, &receivedMessage)
-
-			if err != nil {
-				log.Printf("Error unmarshaling JSON: %+v", err)
-				continue
-			}
-			log.Println("worker", id, "started job", receivedMessage.WalletId)
-			time.Sleep(5 * time.Second)
-			log.Println("worker", id, "finished job", receivedMessage.WalletId)
-		}
+		go walletKafka.CreateOperation(w, partConsumer)
 	}
 }
 
@@ -170,7 +143,7 @@ func publish(producer sarama.SyncProducer) {
 
 		res, _ := json.Marshal(msg)
 		resp := &sarama.ProducerMessage{
-			Topic: PaymentOperationTopic,
+			Topic: kafka.PaymentOperationTopic,
 			Key:   sarama.StringEncoder(strconv.Itoa(i)),
 			Value: sarama.StringEncoder(res),
 		}
