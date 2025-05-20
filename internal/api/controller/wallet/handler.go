@@ -140,7 +140,7 @@ func (h *WalletHandler) GetWalletBalanceByUUID(w http.ResponseWriter, r *http.Re
 		log.Errorf("get wallet [%s] balance from cache error: %+v", walletUUID, err)
 	} else {
 		log.Infof("get wallet [%s] balance from cache", walletUUID)
-		setResponce(w, balance)
+		balanceResponce(w, balance)
 		return
 	}
 
@@ -158,10 +158,10 @@ func (h *WalletHandler) GetWalletBalanceByUUID(w http.ResponseWriter, r *http.Re
 		log.Errorf("set wallet [%s] balance to cache error: cache is not allowed", walletUUID)
 	}
 
-	setResponce(w, balance)
+	balanceResponce(w, balance)
 }
 
-func setResponce(w http.ResponseWriter, balance int64) {
+func balanceResponce(w http.ResponseWriter, balance int64) {
 	respMap := map[string]interface{}{
 		"balance": balance,
 	}
