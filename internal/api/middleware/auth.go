@@ -33,7 +33,7 @@ func (a *AuthMiddleware) CheckToken(next http.Handler) http.Handler {
 			return
 		}
 
-		log.Infof("Пользователь %s сделал запрос %s\n", userLogin, r.URL.Path)
+		log.Infof("Пользователь %s сделал запрос %s", userLogin, r.URL.Path)
 
 		next.ServeHTTP(w, r)
 	}

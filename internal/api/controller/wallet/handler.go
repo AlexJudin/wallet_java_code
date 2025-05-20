@@ -135,7 +135,16 @@ func (h *WalletHandler) GetWalletBalanceByUUID(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	balance, err := h.uc.GetWalletBalanceByUUID(walletUUID)
+	balance, err := h.uc.GetCacheValue(r.Context(), walletUUID)
+	if err != nil {
+		log.Errorf("get wallet [%s] balance from cache error: %+v", walletUUID, err)
+	} else {
+		log.Infof("get wallet [%s] balance from cache", walletUUID)
+		setResponce(w, balance)
+		return
+	}
+
+	balance, err = h.uc.GetWalletBalanceByUUID(walletUUID)
 	if err != nil {
 		log.Error("get wallet balance by UUID error: service is not allowed")
 		messageError = "Ошибка сервера, не удалось получить баланс. Попробуйте позже или обратитесь в тех. поддержку."
@@ -146,9 +155,13 @@ func (h *WalletHandler) GetWalletBalanceByUUID(w http.ResponseWriter, r *http.Re
 
 	err = h.uc.SetCacheValue(r.Context(), walletUUID, balance)
 	if err != nil {
-		log.Error("")
+		log.Errorf("set wallet [%s] balance to cache error: cache is not allowed", walletUUID)
 	}
 
+	setResponce(w, balance)
+}
+
+func setResponce(w http.ResponseWriter, balance int64) {
 	respMap := map[string]interface{}{
 		"balance": balance,
 	}
