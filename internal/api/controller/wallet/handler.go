@@ -43,10 +43,12 @@ func (h *WalletHandler) CreateOperation(w http.ResponseWriter, r *http.Request) 
 		ctx := r.Context()
 		select {
 		case <-time.After(1 * time.Second):
-			log.Info("create payment operation processed")
+			common.ApiError(http.StatusGatewayTimeout, "", w)
+			return
 		case <-ctx.Done():
 			err := ctx.Err()
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			common.ApiError(http.StatusInternalServerError, err.Error(), w)
+			return
 		}
 	*/
 
